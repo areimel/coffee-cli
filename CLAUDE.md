@@ -112,6 +112,11 @@ The layout (planned; created by the work packages):
 - `noUncheckedIndexedAccess`: `arr[i]` is `T | undefined`; handle it. `noPropertyAccessFromIndexSignature`: use `obj['key']` for index signatures.
 - `noUnusedLocals` / `noUnusedParameters` are on.
 - xo is type-aware: `@typescript-eslint/no-unsafe-*` and `strict-boolean-expressions` (no truthiness checks on strings/numbers/nullable objects; compare explicitly).
+- **No `null` in types**: xo bans it and its autofixer breaks the build. "Absent" is `undefined` everywhere (`minBattery`, `pid`, `endsAt`, battery minutes, `readBattery()` result).
+- Doc comments: xo requires multi-line JSDoc with no leading `*` on inner lines (`/**` newline `Text.` newline `*/`), and comments start with a capital letter.
+- Ink's `<Text color>` rejects `undefined`: spread it conditionally (`{...(c === undefined ? {} : {color: c})}`). The `T` kit component does this once; use `T` instead of repeating it.
+- Use `use(Context)` (React 19), not `useContext`; boolean names need an `is`/`has` style prefix.
+- Contracts are frozen in `source/core/session/types.ts`, `source/platform/types.ts`, `source/theme/tokens.ts`, `source/config/schema.ts` (types). Read the doc comments there before implementing against them.
 - File names: PascalCase for components (`Panel.tsx`), kebab-case for everything else (`spawn-lock.ts`).
 - Formatting: tabs, LF, `@vdemedes/prettier-config`. xo ignores `package.json` and markdown; prettier still checks markdown.
 

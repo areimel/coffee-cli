@@ -14,6 +14,17 @@ const xoConfig = [
 			],
 		},
 	},
+	{
+		// Tests run on ava, whose own `ava/no-import-test-files` uses the real test
+		// glob. The node:test rule treats anything under `test/` (incl. helpers) as a test.
+		files: ['test/**'],
+		languageOptions: {
+			parserOptions: {projectService: false, project: './tsconfig.test.json'},
+		},
+		rules: {
+			'node-test/no-import-test-files': 'off',
+		},
+	},
 ];
 
 export default xoConfig;
