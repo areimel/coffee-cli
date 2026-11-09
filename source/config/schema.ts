@@ -90,3 +90,5 @@ export function toConfigSession(options: SessionOptions): ConfigSession {
 }
 
 // ---- validate() is implemented by WP4 below this line ----
+
+export {validate, type ValidationResult} from './validate.js';
