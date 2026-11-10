@@ -1,7 +1,7 @@
 import xoReact from 'eslint-config-xo-react';
 
 const xoConfig = [
-	{ignores: ['dist', 'package.json', '**/*.md']},
+	{ignores: ['dist', 'site/**', 'package.json', '**/*.md']},
 	...xoReact({prettier: true}),
 	{
 		prettier: true,
