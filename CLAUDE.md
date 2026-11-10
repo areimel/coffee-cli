@@ -11,7 +11,8 @@ Guidance for Claude Code and every subagent working in this repo. Read it in ful
 | Task                      | Command                                                                 |
 | ------------------------- | ----------------------------------------------------------------------- |
 | Build (`source/`→`dist/`) | `npm run build`                                                         |
-| Watch build               | `npm run dev`                                                           |
+| Run from source           | `npm run dev` (tsx; flags after `--`, e.g. `npm run dev -- --plain`)    |
+| Watch build               | `npm run build:watch`                                                   |
 | Full suite                | `npm test` (prettier --check, xo, `tsc -p tsconfig.test.json`, ava)     |
 | One test file             | `npm run ava -- test/core/duration.test.ts`                             |
 | One test by title         | `npm run ava -- test/core/duration.test.ts --match "parses 1h30m"`      |
@@ -19,7 +20,7 @@ Guidance for Claude Code and every subagent working in this repo. Read it in ful
 | Lint autofix              | `npx xo --fix source/ui` (prettier runs inside xo)                      |
 | Format check / fix        | `npx prettier --check <paths>` / `npx prettier --write <paths>`         |
 | Type-check only           | `npx tsc -p tsconfig.test.json` (covers `source/`, `test/`, `scripts/`) |
-| Run the built CLI         | `node dist/cli.js` (after `npm run build`)                              |
+| Run the built CLI         | `npm start` or `node dist/cli.js` (after `npm run build`)               |
 
 Plain `npx ava` does NOT work: tsx needs `TSX_TSCONFIG_PATH=tsconfig.test.json`, which `npm run ava` sets.
 
@@ -142,7 +143,7 @@ Gates are in `source/ui/hooks/use-layout.ts`; they are upper bounds. `layouts/da
 
 ## Ink 8 API reference (verified)
 
-Versions: ink 8.0.0, react 19.3.1, meow 14, chalk 6, TypeScript 6.0.3, ava 8.4, tsx 4, xo 5 (flat `xo.config.js`) + eslint-config-xo-react, prettier 3, ink-testing-library 4, @sinonjs/fake-timers 15, figlet 1.12 (dev). Node >= 22.
+Versions: ink 8.0.0, react 19.3.1, meow 14, chalk 6, TypeScript 6.0.3, ava 8.4, tsx 4, xo 5 (flat `xo.config.js`) + eslint-config-xo-react, prettier 3, ink-testing-library 4, @sinonjs/fake-timers 15, figlet 1.12 (dev). Node >= 22.22.2.
 
 - `render(node, options)` options: `stdout, stdin, stderr, debug, exitOnCtrlC` (default true), `patchConsole` (true), `onRender, maxFps` (30), `incrementalRendering` (false), `concurrent, kittyKeyboard, interactive` (false in CI / non-TTY: only the final frame is written), `alternateScreen` (false; interactive only). Returns `{rerender, unmount, waitUntilExit, waitUntilRenderFlush, cleanup, clear}`.
 - `useAnimation({interval = 100, isActive = true}) -> {frame, time, delta, reset}`; one shared timer; toggling `isActive` back on resets.

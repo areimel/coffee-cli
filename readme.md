@@ -51,19 +51,29 @@ Keep your machine awake from a cosy terminal dashboard: a `caffeinate` you can s
 
 ## Requirements
 
-- Node.js >= 22
+- Node.js >= 22.22.2
 - Linux or macOS (Windows and WSL are not supported and say so)
 
 ## Install and run from source
 
 ```bash
 npm install
+npm run dev
+```
+
+`npm run dev` runs the app straight from `source/`, with no build step. Pass flags after `--`: `npm run dev -- --theme green --duration 10m`.
+
+To get a `coffee-cli` command on your PATH instead:
+
+```bash
 npm run build
 npm link
 coffee-cli
 ```
 
-coffee-cli is not published to npm; install it from a clone. `npm link` puts `coffee-cli` on your PATH. Without it, run `node dist/cli.js`.
+coffee-cli is not published to npm; install it from a clone. `npm link` may need `sudo` or a user-writable npm prefix. Without it, `npm start` (or `node dist/cli.js`) runs the built app.
+
+The dev tooling needs Node 22.22.2+ or 24.15+. On an older Node 22 or 24, `npm install` prints `EBADENGINE` warnings for some lint packages; they are harmless, and upgrading Node removes them.
 
 ## Usage
 
@@ -200,7 +210,9 @@ coffee-cli: stayed awake for 1h 0m 0s — Timer finished
 | Command                                 | What it does                                        |
 | --------------------------------------- | --------------------------------------------------- |
 | `npm run build`                         | Compile `source/` to `dist/`                        |
-| `npm run dev`                           | Compile in watch mode                               |
+| `npm run dev`                           | Run the app from source (flags after `--`)          |
+| `npm run build:watch`                   | Compile in watch mode                               |
+| `npm start`                             | Run the built app (`dist/cli.js`)                   |
 | `npm test`                              | Prettier check, xo lint, type-check, then ava tests |
 | `npm run ava -- test/path/file.test.ts` | Run one test file                                   |
 | `npx xo --fix`                          | Lint and auto-fix                                   |
