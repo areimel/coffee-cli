@@ -65,6 +65,7 @@ export function Panel({
 		return body;
 	}
 
+	// The hand-drawn top row uses the `round` corners; keep in step with PANEL_BORDER_STYLE.
 	return (
 		<Box flexDirection="column" {...sizing}>
 			<Box {...optionalProp('backgroundColor', theme.colors.bg)}>

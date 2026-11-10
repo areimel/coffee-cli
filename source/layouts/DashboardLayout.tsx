@@ -74,7 +74,7 @@ function Panels({
 }
 
 /**
-Arranges the regions; decides nothing itself. `full`: heading, then cup column left of the stacked panels. `stacked`: one column, cup (if shown) above the panels. `minimal`: status line (or the open overlay). Key hints always sit on the bottom row, and the root is exactly the terminal size so the alternate screen never scrolls.
+Arranges the regions; decides nothing itself. `full`: heading, then the framed cup column left of the panel column (Session and Stats side by side or stacked, then the options slot); both columns stretch to end on the same row. `stacked`: one column, cup (if shown) above the panels. `minimal`: status line (or the open overlay). Key hints always sit on the bottom row, and the root is exactly the terminal size so the alternate screen never scrolls.
 */
 export function DashboardLayout({
 	layout,

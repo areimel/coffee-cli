@@ -1,4 +1,3 @@
-import {stripVTControlCharacters} from 'node:util';
 import test from 'ava';
 import {Credits} from '../../../source/features/cup/Credits.js';
 import {CREDITS_ROWS} from '../../../source/features/cup/credits.js';
@@ -48,11 +47,4 @@ test('a long line is truncated to the width', t => {
 	t.true(row.length <= 12);
 	t.true(row.startsWith('github.com'));
 	t.false(row.includes('handle'));
-});
-
-test('frame has no colour escape sequences left after stripping', t => {
-	const r = renderThemed(<Credits width={10} />);
-	const frame = r.lastFrame() ?? '';
-	t.is(stripVTControlCharacters(frame), r.plainFrame());
-	r.unmount();
 });

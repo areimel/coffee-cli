@@ -104,6 +104,7 @@ test('stat lines are trimmed before panels stack', t => {
 		stats: {count: 12, minCount: 3, width: 33},
 	});
 	t.like(plan, {stats: 'beside'});
+	t.true(plan.statsLineCount < 12);
 	t.true(plan.height <= 24);
 });
 
@@ -158,7 +159,7 @@ test('wrappedRows wraps on words', t => {
 	t.is(wrappedRows('', 10), 1);
 });
 
-test('sessionPanelHeight matches the rendered panel', t => {
+test('sessionPanelHeight counts the default Session rows', t => {
 	const state = makeState({
 		phase: 'awake',
 		locks: {
