@@ -201,14 +201,17 @@ coffee-cli: stayed awake for 1h 0m 0s — Timer finished
 
 ## Website and documentation
 
-The Astro microsite lives in [`site/`](site/README.md), with a landing page and full user guide. It builds independently of the CLI:
+The landing page and full user guide are live at **<https://areimel.github.io/coffee-cli/>**.
+
+The site is an Astro project in [`site/`](site/README.md), separate from the CLI. Every push to `main` that touches `site/` is checked and deployed to GitHub Pages by `.github/workflows/site.yml`, and pull requests run the same checks without deploying. To work on it locally (the root install is needed too, because the site build reads the root `tsconfig.json`):
 
 ```bash
+npm ci
 npm --prefix site ci
 npm --prefix site run dev
 ```
 
-Open `http://localhost:4321/coffee-cli/`. See the [site README](site/README.md) for checks and GitHub Pages setup.
+Open `http://localhost:4321/coffee-cli/`. See the [site README](site/README.md) for checks and deployment details.
 
 ## Development
 

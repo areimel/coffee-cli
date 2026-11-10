@@ -7,6 +7,7 @@ Astro landing page and complete public user guide, adapted from the Kojima templ
 Use current Node 24 LTS (24.15 or newer) and npm 10.8.2 or newer. From the repository root:
 
 ```sh
+npm ci
 npm --prefix site ci
 npm --prefix site run dev
 ```
@@ -36,6 +37,8 @@ User guides live in `src/pages/docs/` and use the shared docs layout. Keep examp
 
 The production URL is `https://areimel.github.io/coffee-cli/`. There is no custom domain. `.github/workflows/site.yml` validates pull requests and deploys successful `main` builds or manual dispatches on `main`.
 
-In the GitHub repository, select **Settings → Pages → Build and deployment → Source → GitHub Actions**. Push/merge the site changes to `main` to run the workflow. The `github-pages` environment must permit deployment from `main`. This checkout does not change repository settings or publish by itself.
+Pages is enabled with **GitHub Actions** as its source (**Settings → Pages → Build and deployment**), and the site is live. To publish a change, merge it to `main`. The workflow then reruns format, type and browser checks, builds `site/dist`, and deploys it. You can also run the workflow by hand from the Actions tab (`workflow_dispatch`) on `main`. The `github-pages` environment allows deploys from `main` only.
+
+CI also runs `npm ci --ignore-scripts` at the repository root before installing `site/`. The Astro/Vite build resolves the root `tsconfig.json`, which extends `@sindresorhus/tsconfig`, and fails with `Tsconfig not found @sindresorhus/tsconfig` if the root dependencies are missing. Locally this means running `npm install` at the root as well as in `site/`.
 
 If the repository name or hosting changes, update `site` and `base` in `astro.config.mjs` together, then rerun the browser checks against the new base URL. Static documentation needs no secrets, backend, or runtime configuration.
