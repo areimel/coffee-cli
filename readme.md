@@ -1,4 +1,4 @@
-# coffee-cli
+# coffee-term
 
 Keep your machine awake from a cosy terminal dashboard: a `caffeinate` you can see and steer.
 
@@ -47,38 +47,43 @@ Keep your machine awake from a cosy terminal dashboard: a `caffeinate` you can s
 - Node.js >= 22.22.2
 - Linux or macOS (Windows and WSL are not supported and say so)
 
-## Install and run from source
+## Install
 
 ```bash
+npm install -g coffee-term
+coffee-term
+```
+
+Or try it without installing:
+
+```bash
+npx coffee-term
+```
+
+## Run from source
+
+```bash
+git clone https://github.com/areimel/coffee-cli.git
+cd coffee-cli
 npm install
 npm run dev
 ```
 
-`npm run dev` runs the app straight from `source/`, with no build step. Pass flags after `--`: `npm run dev -- --theme green --duration 10m`.
-
-To get a `coffee-cli` command on your PATH instead:
-
-```bash
-npm run build
-npm link
-coffee-cli
-```
-
-coffee-cli is not published to npm; install it from a clone. `npm link` may need `sudo` or a user-writable npm prefix. Without it, `npm start` (or `node dist/cli.js`) runs the built app.
+`npm run dev` runs the app straight from `source/`, with no build step. Pass flags after `--`: `npm run dev -- --theme green --duration 10m`. `npm run build` then `npm start` (or `node dist/cli.js`) runs the built app.
 
 The dev tooling needs Node 22.22.2+ or 24.15+. On an older Node 22 or 24, `npm install` prints `EBADENGINE` warnings for some lint packages; they are harmless, and upgrading Node removes them.
 
 ## Usage
 
 ```bash
-coffee-cli                     # stay awake indefinitely (or with your saved settings)
-coffee-cli -d 1h30m            # stay awake for 1 hour 30 minutes
-coffee-cli -u 17:30            # stay awake until 17:30
-coffee-cli -p 4242             # stay awake until process 4242 exits
-coffee-cli --no-display        # keep the system awake but let the screen sleep
-coffee-cli --ac-only --min-battery 20
-coffee-cli --theme severance
-coffee-cli -d 2h --plain &     # no dashboard; log lines only, good for scripts
+coffee-term                     # stay awake indefinitely (or with your saved settings)
+coffee-term -d 1h30m            # stay awake for 1 hour 30 minutes
+coffee-term -u 17:30            # stay awake until 17:30
+coffee-term -p 4242             # stay awake until process 4242 exits
+coffee-term --no-display        # keep the system awake but let the screen sleep
+coffee-term --ac-only --min-battery 20
+coffee-term --theme severance
+coffee-term -d 2h --plain &     # no dashboard; log lines only, good for scripts
 ```
 
 ### Flags
@@ -124,12 +129,12 @@ Themes adapt to your terminal's colour support (truecolor, 256, 16). With `NO_CO
 
 ## What "awake" means
 
-coffee-cli holds up to two locks, and the dashboard shows each one separately:
+coffee-term holds up to two locks, and the dashboard shows each one separately:
 
 - **System lock**: the machine does not idle-sleep.
 - **Display lock**: the screen does not blank or lock.
 
-If the display lock is unavailable, the session shows as degraded but the system stays awake. If the system lock cannot be held, the session stops with the error rather than pretending to be awake. Every lock is tied to the coffee-cli process, so the OS releases it even if coffee-cli is killed.
+If the display lock is unavailable, the session shows as degraded but the system stays awake. If the system lock cannot be held, the session stops with the error rather than pretending to be awake. Every lock is tied to the coffee-term process, so the OS releases it even if coffee-term is killed.
 
 | Platform                      | System lock                     | Display lock                          | Status                                                              |
 | ----------------------------- | ------------------------------- | ------------------------------------- | ------------------------------------------------------------------- |
@@ -148,11 +153,11 @@ A session ends automatically when:
 - the machine switches to battery (`--ac-only`) or the battery drops below the minimum (`--min-battery`);
 - the system lock cannot be held.
 
-When one fires, coffee-cli releases its locks, prints a one-line summary and exits. Battery rules are disabled, with a note, on machines without a battery. Pausing with `Space` is different: the locks are released and the cup goes cold, but the app stays open until you resume or quit.
+When one fires, coffee-term releases its locks, prints a one-line summary and exits. Battery rules are disabled, with a note, on machines without a battery. Pausing with `Space` is different: the locks are released and the cup goes cold, but the app stays open until you resume or quit.
 
 ## Exit summary and exit codes
 
-When a session ends, coffee-cli prints one line, e.g. `coffee-cli: stayed awake for <time> — Timer finished`. The reason text is one of: Stopped by user, Timer finished, Reached the set time, Watched process exited, Switched to battery power, Battery below the minimum, Could not hold the system lock, Interrupted by a signal.
+When a session ends, coffee-term prints one line, e.g. `coffee-term: stayed awake for <time> — Timer finished`. The reason text is one of: Stopped by user, Timer finished, Reached the set time, Watched process exited, Switched to battery power, Battery below the minimum, Could not hold the system lock, Interrupted by a signal.
 
 | Code  | Meaning                                                                                |
 | ----- | -------------------------------------------------------------------------------------- |
@@ -178,25 +183,25 @@ Below 40 columns or 13 rows you get an unframed single status line plus key hint
 
 Your theme and last session settings are saved automatically after you change them in the app:
 
-- Linux: `$XDG_CONFIG_HOME/coffee-cli/config.json` (default `~/.config/coffee-cli/config.json`)
-- macOS: `~/Library/Application Support/coffee-cli/config.json`
-- Override with `COFFEE_CLI_CONFIG=/path/to/config.json` or `--config /path/to/config.json`
+- Linux: `$XDG_CONFIG_HOME/coffee-term/config.json` (default `~/.config/coffee-term/config.json`)
+- macOS: `~/Library/Application Support/coffee-term/config.json`
+- Override with `COFFEE_TERM_CONFIG=/path/to/config.json` or `--config /path/to/config.json`
 
 Saved: theme, session end (indefinite / duration / until), display lock, AC-only, minimum battery and animation. The watched PID is never saved. Invalid fields fall back to defaults; an unreadable file is kept aside as `config.corrupt-<timestamp>.json` and defaults are used.
 
 ## Plain mode
 
-When stdin or stdout is not a terminal (piped or redirected), or with `--plain`, coffee-cli skips the dashboard and prints one log line per state change. Stop conditions and exit behaviour are the same.
+When stdin or stdout is not a terminal (piped or redirected), or with `--plain`, coffee-term skips the dashboard and prints one log line per state change. Stop conditions and exit behaviour are the same.
 
 ```bash
-coffee-cli -d 1h | tee awake.log
+coffee-term -d 1h | tee awake.log
 ```
 
 Example lines:
 
 ```
-coffee-cli: awake — system: systemd-inhibit, display: gnome-session-inhibit
-coffee-cli: stayed awake for 1h 0m 0s — Timer finished
+coffee-term: awake — system: systemd-inhibit, display: gnome-session-inhibit
+coffee-term: stayed awake for 1h 0m 0s — Timer finished
 ```
 
 ## Website and documentation
@@ -230,7 +235,7 @@ Contributor and agent conventions are in [CLAUDE.md](CLAUDE.md); the design is i
 
 ## Known limitations
 
-- `kill -9` of coffee-cli cannot restore the terminal's alternate screen (run `reset` afterwards). The locks are still dropped by the OS, because each lock child is tied to the coffee-cli process.
+- `kill -9` of coffee-term cannot restore the terminal's alternate screen (run `reset` afterwards). The locks are still dropped by the OS, because each lock child is tied to the coffee-term process.
 - The battery stop rules (`--ac-only`, `--min-battery`) have not been tested on a machine that is actually discharging; they are covered by fixtures only.
 - macOS has not been run on hardware.
 - The X11 `xset` display lock is unit-tested only.

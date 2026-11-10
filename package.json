@@ -1,22 +1,51 @@
 {
-	"name": "coffee-cli",
-	"version": "0.0.0",
+	"name": "coffee-term",
+	"version": "0.1.0",
+	"description": "Keep your machine awake from a terminal dashboard: a caffeinate you can see and steer",
+	"keywords": [
+		"caffeinate",
+		"keep-awake",
+		"sleep",
+		"inhibit",
+		"idle",
+		"terminal",
+		"cli",
+		"tui",
+		"ink"
+	],
+	"homepage": "https://areimel.github.io/coffee-cli/",
+	"bugs": {
+		"url": "https://github.com/areimel/coffee-cli/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/areimel/coffee-cli.git"
+	},
+	"author": "Alec Reimel (https://github.com/areimel)",
 	"license": "MIT",
-	"bin": "dist/cli.js",
+	"bin": {
+		"coffee-term": "dist/cli.js"
+	},
 	"type": "module",
 	"engines": {
 		"node": ">=22.22.2"
 	},
+	"os": [
+		"linux",
+		"darwin"
+	],
 	"scripts": {
 		"build": "tsc",
 		"build:watch": "tsc --watch",
 		"dev": "tsx source/cli.tsx",
 		"start": "node dist/cli.js",
 		"test": "prettier --check . && xo && tsc -p tsconfig.test.json && TSX_TSCONFIG_PATH=tsconfig.test.json ava",
-		"ava": "TSX_TSCONFIG_PATH=tsconfig.test.json ava"
+		"ava": "TSX_TSCONFIG_PATH=tsconfig.test.json ava",
+		"prepublishOnly": "rm -rf dist && npm run build"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/**/*.d.ts"
 	],
 	"dependencies": {
 		"ink": "^8.0.0",
