@@ -13,13 +13,28 @@ The options slot (editor or overlay) is always kept whole.
 import {CREDITS_ROWS} from '../features/cup/credits.js';
 import {CUP_LINES, CUP_WIDTH} from '../features/cup/cup-art.js';
 import {STEAM_HEIGHT} from '../features/cup/steam.js';
-import {HEADING_HEIGHT} from '../features/heading/heading-art.js';
+import {
+	HEADING_HEIGHT,
+	HEADING_WIDTH,
+} from '../features/heading/heading-art.js';
+import {COMPACT_TITLE_WIDTH} from '../features/heading/title.js';
 import type {Layout, LayoutMode} from '../ui/hooks/use-layout.js';
 
 /**
-Heading art plus the blank row under it.
+Border (2) plus horizontal padding (2) of the outer frame.
 */
-export const HEADING_ART_ROWS = HEADING_HEIGHT + 1;
+export const FRAME_CHROME_COLUMNS = 4;
+/**
+Top and bottom edge of the outer frame. The heading's first art row rides in the top edge and the key hints in the bottom edge.
+*/
+export const FRAME_CHROME_ROWS = 2;
+/**
+Art rows inside the frame (all but the first, which is in the top edge) plus the 2 blank rows under them.
+*/
+export const HEADING_ART_ROWS = HEADING_HEIGHT - 1 + 2;
+/**
+The blank row under the top edge when it carries the compact title.
+*/
 export const TITLE_ROWS = 1;
 export const CUP_ROWS = STEAM_HEIGHT + CUP_LINES.length;
 /**
@@ -70,7 +85,11 @@ export type DashboardPlan = {
 	*/
 	sessionWidth: number;
 	/**
-	Total rows the plan needs; at most `layout.rows` unless nothing fits.
+	Width of the content inside the frame: the cup column plus panels, at least as wide as the art or the compact title.
+	*/
+	contentWidth: number;
+	/**
+	Total rows the plan needs inside the frame; at most `layout.rows` unless nothing fits.
 	*/
 	height: number;
 };
@@ -78,7 +97,7 @@ export type DashboardPlan = {
 export type PlanInput = {
 	layout: Layout;
 	/**
-	Rows below the body: key hints plus warning lines.
+	Rows below the body inside the frame: warning lines only (the hints are in the bottom edge). In minimal mode, which has no frame: hints plus warning lines.
 	*/
 	footerRows: number;
 	/**
@@ -199,6 +218,8 @@ function measure(
 		: 0;
 	const body = mode === 'full' ? Math.max(cupRows, panels) : cupRows + panels;
 	const heading = candidate.isArt ? HEADING_ART_ROWS : TITLE_ROWS;
+	const bodyWidth =
+		mode === 'full' ? layout.cupColumnWidth + panelWidth : panelWidth;
 	return {
 		mode,
 		showHeadingArt: candidate.isArt,
@@ -209,6 +230,10 @@ function measure(
 		statsLineCount: candidate.count,
 		panelWidth,
 		sessionWidth,
+		contentWidth: Math.max(
+			bodyWidth,
+			candidate.isArt ? HEADING_WIDTH : COMPACT_TITLE_WIDTH,
+		),
 		height: heading + body + input.footerRows,
 	};
 }
@@ -229,6 +254,7 @@ export function planDashboard(input: PlanInput): DashboardPlan {
 			statsLineCount: 0,
 			panelWidth: layout.columns,
 			sessionWidth: layout.columns,
+			contentWidth: layout.columns,
 			height: 1 + input.footerRows,
 		};
 	}

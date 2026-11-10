@@ -3,7 +3,6 @@ import type {ConfigTracker} from './config/merge.js';
 import {isActivePhase, isTerminalPhase} from './core/session/selectors.js';
 import type {SessionController} from './core/session/types.js';
 import {CupPanel} from './features/cup/CupPanel.js';
-import {Heading} from './features/heading/Heading.js';
 import {HelpOverlay} from './features/help/HelpOverlay.js';
 import {OptionsEditor} from './features/options/OptionsEditor.js';
 import {buildStats} from './features/stats/stats-model.js';
@@ -12,7 +11,8 @@ import {SessionStatus} from './features/status/SessionStatus.js';
 import {StatusLine} from './features/status/StatusLine.js';
 import {ThemePicker} from './features/themes/ThemePicker.js';
 import {DashboardLayout} from './layouts/DashboardLayout.js';
-import {Footer, type Overlay} from './layouts/Footer.js';
+import {Hints, Warnings, type Overlay} from './layouts/Footer.js';
+import {hintsWidth} from './layouts/frame-plan.js';
 import {OPTION_LABEL_WIDTH, trimStats} from './layouts/region-heights.js';
 import {planWithWarnings} from './layouts/plan-for-state.js';
 import type {SystemStats} from './platform/system-stats.js';
@@ -42,7 +42,7 @@ export type AppProps = {
 	readonly saver: SettingsSaver;
 	readonly colorLevel: ColorLevel;
 	/**
-	Config-load warnings, shown above the key hints.
+	Config-load warnings, shown on the frame's last rows above the key hints.
 	*/
 	readonly warnings?: readonly string[];
 	/**
@@ -171,7 +171,6 @@ function Dashboard({
 		<DashboardLayout
 			layout={layout}
 			plan={plan}
-			heading={<Heading isCompact={!plan.showHeadingArt} />}
 			cup={
 				<CupPanel
 					isAnimated={settings.isAnimated}
@@ -209,15 +208,15 @@ function Dashboard({
 				</Panel>
 			}
 			{...(overlayNode === undefined ? {} : {overlay: overlayNode})}
-			footer={
-				<Footer
-					columns={layout.columns}
+			hints={
+				<Hints
+					width={hintsWidth(plan, layout)}
 					overlay={overlay}
 					isEditing={isEditing}
 					isPaused={state.phase === 'paused'}
-					warnings={shownWarnings}
 				/>
 			}
+			warnings={<Warnings warnings={shownWarnings} />}
 			{...(theme.colors.bg === undefined
 				? {}
 				: {backgroundColor: theme.colors.bg})}

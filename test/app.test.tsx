@@ -1,4 +1,6 @@
 import test, {type ExecutionContext} from 'ava';
+import {HEADING_LINES} from '../source/features/heading/heading-art.js';
+import {splitFrame} from './helpers/frame-lines.js';
 import {delay, KEYS, startApp, type AppHarness} from './helpers/app-harness.js';
 
 const ART = '██████╗';
@@ -122,11 +124,11 @@ test.serial('fits with a timer, a watched pid and a warning', async t => {
 });
 
 test.serial(
-	'at 12 rows a timer plus a warning drops the warning, not the Options border',
+	'at 13 rows a timer plus a warning drops the warning, not the Options border',
 	async t => {
 		const app = await startApp({
 			columns: 60,
-			rows: 12,
+			rows: 13,
 			options: {end: {mode: 'duration', ms: 3_600_000}},
 			warnings: [
 				'Config field "theme" is invalid; using the default.',
@@ -136,7 +138,7 @@ test.serial(
 		try {
 			await app.waitForPhase('awake');
 			const frame = app.plainFrame();
-			assertFits(t, frame, 60, 12);
+			assertFits(t, frame, 60, 13);
 			assertOptionsWhole(t, frame);
 			t.regex(frame, /q quit/v);
 			t.notRegex(frame, /! Config field/v);
@@ -298,3 +300,140 @@ test.serial(
 		);
 	},
 );
+
+const FRAME_100X26 = 23;
+const FRAME_100X40_WARNED = 30;
+const HEADING_ROW_0 = HEADING_LINES[0]!;
+const HEADING_ROW_1 = HEADING_LINES[1]!;
+
+/**
+The screen is exactly `rows` lines; the frame (`frameRows` tall) is centred vertically with blank rows above and below differing by at most one; no line is wider than the terminal; every frame row has `┃` at the frame's left and right columns. Returns the frame's lines.
+*/
+function assertFrame(
+	t: ExecutionContext,
+	lines: string[],
+	columns: number,
+	rows: number,
+	frameRows: number,
+): string[] {
+	t.is(lines.length, rows);
+	t.true(
+		lines.every(line => line.length <= columns),
+		'a line is wider than the terminal',
+	);
+	const {above, frame, below} = splitFrame(lines);
+	t.is(frame.length, frameRows);
+	t.true(Math.abs(above - below) <= 1, `above ${above}, below ${below}`);
+	t.true(lines.slice(0, above).every(line => line.trim() === ''));
+	t.true(lines.slice(rows - below).every(line => line.trim() === ''));
+	if (frameRows === rows) {
+		t.is(below, 0);
+	}
+
+	const first = frame[0]!;
+	const left = first.indexOf('┏');
+	const right = first.lastIndexOf('┓');
+	t.not(left, -1);
+	t.true(right > left);
+	t.is(first.slice(0, left).trim(), '');
+	for (const line of frame.slice(1, -1)) {
+		t.is(line.indexOf('┃'), left, `left border in "${line}"`);
+		t.is(line.lastIndexOf('┃'), right, `right border in "${line}"`);
+	}
+
+	const last = frame.at(-1)!;
+	t.is(last.indexOf('┗'), left);
+	t.is(last.lastIndexOf('┛'), right);
+	t.true(last.slice(left).startsWith('┗━ '));
+	t.true(last.includes('q quit'));
+	return frame;
+}
+
+test.serial(
+	'120x40: heavy frame, art row 0 in the top edge, hints in the bottom edge',
+	async t => {
+		await withApp(
+			async app => {
+				// Art 7 + cup column 20 + the two edges.
+				const lines = assertFrame(t, app.plainFrame().split('\n'), 120, 40, 29);
+				t.true(lines[0]!.trimStart().startsWith('┏'));
+				const crown = lines[0]!.indexOf(HEADING_ROW_0);
+				t.true(crown > 0);
+				t.is(lines[1]!.indexOf(HEADING_ROW_1), crown);
+				// Two blank rows between the art and the first panel.
+				t.is(lines[6]!.replaceAll(/[\s┃]/gv, ''), '');
+				t.is(lines[7]!.replaceAll(/[\s┃]/gv, ''), '');
+				t.true(lines[8]!.includes('╭'));
+				// Centred: the spare columns split evenly, give or take one.
+				const margins = [
+					lines[0]!.indexOf('┏'),
+					120 - 1 - lines[0]!.lastIndexOf('┓'),
+				];
+				t.true(Math.abs(margins[0]! - margins[1]!) <= 1);
+				const cupBottom = lines.findIndex(line => /╰─+╯\s+╰─+╯/v.test(line));
+				t.is(
+					cupBottom,
+					lines.findLastIndex(line => line.includes('╰─')),
+				);
+			},
+			{columns: 120, rows: 40},
+		);
+	},
+);
+
+test.serial(
+	'100x26: the compact title rides in the top edge, frame bottom on the last row',
+	async t => {
+		await withApp(
+			async app => {
+				const lines = assertFrame(
+					t,
+					app.plainFrame().split('\n'),
+					100,
+					26,
+					FRAME_100X26,
+				);
+				t.regex(lines[0]!, /^\s*┏━+ COFFEE keeps your machine awake ━+┓$/v);
+				t.false(app.plainFrame().includes(ART));
+			},
+			{columns: 100, rows: 26},
+		);
+	},
+);
+
+test.serial('80x24: frame hugs the content and stays centred', async t => {
+	await withApp(
+		async app => {
+			assertFrame(t, app.plainFrame().split('\n'), 80, 24, 19);
+		},
+		{columns: 80, rows: 24},
+	);
+});
+
+test.serial('warnings sit inside the frame above the bottom edge', async t => {
+	await withApp(
+		async app => {
+			const lines = assertFrame(
+				t,
+				app.plainFrame().split('\n'),
+				100,
+				40,
+				FRAME_100X40_WARNED,
+			);
+			t.regex(lines.at(-2)!, /┃ ! Config field "theme" is invalid/v);
+		},
+		{columns: 100, rows: 40, warnings: ['Config field "theme" is invalid.']},
+	);
+});
+
+test.serial('minimal sizes stay unframed', async t => {
+	await withApp(
+		async app => {
+			const frame = app.plainFrame();
+			t.false(frame.includes('┏'));
+			t.false(frame.includes('┃'));
+			t.regex(frame, /q quit/v);
+		},
+		{columns: 39, rows: 20},
+	);
+});

@@ -1,7 +1,11 @@
 import test from 'ava';
 import {Box, Text} from 'ink';
+import {HEADING_LINES} from '../../source/features/heading/heading-art.js';
+import {frameHeight} from '../../source/layouts/frame-plan.js';
+import {splitFrame} from '../helpers/frame-lines.js';
 import {DashboardLayout} from '../../source/layouts/DashboardLayout.js';
 import {
+	FRAME_CHROME_ROWS,
 	planDashboard,
 	type DashboardPlan,
 } from '../../source/layouts/dashboard-plan.js';
@@ -28,7 +32,7 @@ function draw(
 	const plan = {
 		...planDashboard({
 			layout,
-			footerRows: 1,
+			footerRows: 0,
 			sessionHeight: () => 3,
 			stats: {count: 2, minCount: 1, width: 20},
 			slotHeight: () => 2,
@@ -39,7 +43,6 @@ function draw(
 		<DashboardLayout
 			layout={layout}
 			plan={plan}
-			heading={<Text>HEAD</Text>}
 			cup={
 				<Panel title="cup" width={20} flexGrow={1}>
 					<Block label="cup" rows={3} />
@@ -61,14 +64,15 @@ function draw(
 					<Block label="opt" rows={2} />
 				</Panel>
 			}
-			footer={<Text>hints</Text>}
+			hints={<Text>hints</Text>}
+			warnings={null}
 		/>,
 		columns,
 		rows,
 	);
 	const lines = result.plainFrame().split('\n');
 	result.unmount();
-	return {lines, plan};
+	return {lines, plan, layout};
 }
 
 const rowOf = (lines: string[], text: string) =>
@@ -81,7 +85,9 @@ test('full: cup column left of the stacked panels', t => {
 	t.true(cup.indexOf('cup0') < cup.indexOf('ses0'));
 	t.true(rowOf(lines, 'ses0') < rowOf(lines, 'sta0'));
 	t.true(rowOf(lines, 'sta1') < rowOf(lines, 'opt0'));
-	t.is(rowOf(lines, 'HEAD'), 0);
+	const {frame} = splitFrame(lines);
+	t.true(frame[0]!.trimStart().startsWith('┏'));
+	t.true(frame[0]!.includes(HEADING_LINES[0]!));
 });
 
 test('full: cup frame and the last panel end on the same row', t => {
@@ -118,18 +124,50 @@ test('minimal: status line and hints only', t => {
 	const {lines, plan} = draw(38, 10);
 	t.is(plan.mode, 'minimal');
 	t.is(rowOf(lines, 'status-line'), 0);
-	t.is(rowOf(lines, 'HEAD'), -1);
+	t.false(lines.some(line => line.includes('┏')));
 	t.is(rowOf(lines, 'opt0'), -1);
 });
 
-test('root is exactly the terminal size, hints on the last row', t => {
+test('minimal: hints on the last row, no frame', t => {
+	const {lines} = draw(38, 10);
+	t.is(lines.length, 10);
+	t.true(lines.at(-1)!.includes('hints'));
+});
+
+test('framed: exact screen height, frame hugs its height and is centred vertically', t => {
 	for (const [columns, rows] of [
 		[120, 40],
 		[80, 24],
-		[38, 10],
+		[45, 14],
 	] as const) {
-		const {lines} = draw(columns, rows);
+		const {lines, plan, layout} = draw(columns, rows);
 		t.is(lines.length, rows);
-		t.true(lines.at(-1)!.includes('hints'));
+		const {above, frame, below} = splitFrame(lines);
+		t.is(frame.length, frameHeight(plan, layout));
+		t.true(Math.abs(above - below) <= 1, `${columns}x${rows}`);
+		t.regex(frame.at(-1)!, /^\s*┗━ hints ━*┛$/v);
+		t.true(lines.every(line => line.length <= columns));
+		t.is(below === 0, plan.height + FRAME_CHROME_ROWS >= rows);
 	}
+});
+
+test('framed: art rows hang under the crown, side borders line up', t => {
+	const {frame} = splitFrame(draw(120, 40).lines);
+	const crown = frame[0]!.indexOf(HEADING_LINES[0]!);
+	t.is(frame[1]!.indexOf(HEADING_LINES[1]!), crown);
+	const left = frame[0]!.indexOf('┏');
+	const right = frame[0]!.indexOf('┓');
+	for (const line of frame.slice(1, -1)) {
+		t.is(line.indexOf('┃'), left);
+		t.is(line.lastIndexOf('┃'), right);
+	}
+});
+
+test('framed: the compact title rides in the top edge, one blank row under it', t => {
+	const {lines, plan} = draw(80, 24);
+	const {frame} = splitFrame(lines);
+	t.false(plan.showHeadingArt);
+	t.regex(frame[0]!, /^\s*┏━+ COFFEE keeps your machine awake ━+┓$/v);
+	t.is(frame[1]!.replaceAll(/[\s┃]/gv, ''), '');
+	t.true(frame[2]!.includes('╭'));
 });

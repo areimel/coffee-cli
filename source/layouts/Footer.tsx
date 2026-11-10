@@ -5,16 +5,18 @@ import {KeyHints, T, type KeyHint} from '../ui/kit/index.js';
 export type Overlay = 'themes' | 'help' | undefined;
 
 /**
-At most this many warning lines are shown above the hints.
+At most this many warning lines are shown, inside the frame above the bottom edge.
 */
 export const MAX_WARNING_LINES = 2;
 
-export type FooterProps = {
-	readonly columns: number;
+export type HintsProps = {
+	/**
+	Columns the hints may use.
+	*/
+	readonly width: number;
 	readonly overlay: Overlay;
 	readonly isEditing: boolean;
 	readonly isPaused: boolean;
-	readonly warnings: readonly string[];
 };
 
 const EDITING_HINTS: readonly KeyHint[] = [
@@ -37,10 +39,7 @@ export function currentHints({
 	overlay,
 	isEditing,
 	isPaused,
-}: Pick<
-	FooterProps,
-	'overlay' | 'isEditing' | 'isPaused'
->): readonly KeyHint[] {
+}: Pick<HintsProps, 'overlay' | 'isEditing' | 'isPaused'>): readonly KeyHint[] {
 	if (overlay === 'themes') {
 		return PICKER_HINTS;
 	}
@@ -94,26 +93,31 @@ export function fitHints(
 }
 
 /**
-Number of rows the footer takes.
+Rows the warnings take inside the frame (the hints are in the bottom edge).
 */
 export const footerRows = (warnings: readonly string[]): number =>
-	1 + Math.min(warnings.length, MAX_WARNING_LINES);
+	Math.min(warnings.length, MAX_WARNING_LINES);
 
 /**
-Config warnings (one truncated line each) above the key hints bar.
+The key hints, fitted to `width`; they live in the frame's bottom edge.
 */
-export function Footer({columns, warnings, ...state}: FooterProps) {
+export function Hints({width, ...state}: HintsProps) {
 	return (
-		<Box flexDirection="column" width={columns}>
+		<KeyHints hints={fitHints(currentHints(state), width)} maxWidth={width} />
+	);
+}
+
+/**
+Config warnings, one truncated line each, on the frame's last rows above the bottom edge.
+*/
+export function Warnings({warnings}: {readonly warnings: readonly string[]}) {
+	return (
+		<Box flexDirection="column" flexShrink={0}>
 			{warnings.slice(0, MAX_WARNING_LINES).map(warning => (
 				<T key={warning} tone="warn" wrap="truncate-end">
 					! {warning}
 				</T>
 			))}
-			<KeyHints
-				hints={fitHints(currentHints(state), columns)}
-				maxWidth={columns}
-			/>
 		</Box>
 	);
 }
