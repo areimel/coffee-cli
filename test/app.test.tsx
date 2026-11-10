@@ -43,7 +43,7 @@ const sizes: Array<{
 	},
 	{
 		columns: 100,
-		rows: 30,
+		rows: 27,
 		check(t, frame) {
 			t.false(frame.includes(ART));
 			t.regex(frame, /COFFEE keeps your machine awake/v);

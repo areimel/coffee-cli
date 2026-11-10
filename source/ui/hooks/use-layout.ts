@@ -1,21 +1,26 @@
 import {useWindowSize} from 'ink';
-import {CUP_LINES, CUP_WIDTH} from '../../features/cup/cup-art.js';
-import {STEAM_HEIGHT} from '../../features/cup/steam.js';
+import {CREDITS_ROWS} from '../../features/cup/credits.js';
+import {
+	CUP_FRAME_COLUMNS,
+	CUP_FRAME_ROWS,
+	HEADING_ART_ROWS,
+} from '../../layouts/dashboard-plan.js';
 
 /**
 These are upper-bound gates from measured region heights; `layouts/dashboard-plan.ts` then fits the actual content (which varies with battery, notes and options) and may still drop the art or the cup.
 
-Heading art (49 columns, 6 rows + 1 gap) is only considered from this size. Below it: a one-line title. 35 rows = art 7 + Session 10 + Stats 9 (6 lines) + Options 8 + hints 1.
+Heading art (49 columns, 6 rows + 1 gap) is only considered from this size. Below it: a one-line title. The best case is the full layout, where the cup column is the tallest region: art 7 + framed cup 16 + credits 4 + hints 1 = 28 rows (Session 9 beside Stats 10, plus Options 9, is 19 and fits beside it). Narrower or busier terminals need more; the plan then drops the art.
 */
 export const HEADING_ART_MIN_COLUMNS = 64;
-export const HEADING_ART_MIN_ROWS = 35;
+export const HEADING_ART_MIN_ROWS =
+	HEADING_ART_ROWS + CUP_FRAME_ROWS + CREDITS_ROWS + 1;
 /**
-Cup (steam + cup art, 14 rows) is hidden below this size: it needs its own rows plus the title and hints.
+The framed cup (steam + cup art in a `Panel`, 16 rows; the credits are dropped first) is hidden below this size: it needs its own rows plus the title and hints.
 */
 export const CUP_MIN_COLUMNS = 50;
-export const CUP_MIN_ROWS = STEAM_HEIGHT + CUP_LINES.length + 2;
+export const CUP_MIN_ROWS = CUP_FRAME_ROWS + 2;
 /**
-Below this width panels stack under the cup; at or above it (with the cup shown) the cup sits left of the panels.
+Below this width panels stack under the cup; at or above it (with the cup shown) the cup sits left of the panels. At 90 columns the panel column is 63 wide, enough for Session beside Stats only when Stats is at most 27 wide (Session needs 36); wider stats stack until about 91 columns.
 */
 export const FULL_MIN_COLUMNS = 90;
 /**
@@ -24,9 +29,9 @@ Single status line plus hints below this size. 12 rows = title 1 + status line 1
 export const MINIMAL_MAX_COLUMNS = 40;
 export const MINIMAL_MAX_ROWS = 12;
 /**
-Cup column = cup art plus this much gap.
+Cup column = framed cup plus this much gap.
 */
-export const CUP_COLUMN_PADDING = 2;
+export const CUP_COLUMN_PADDING = 1;
 
 export type LayoutMode = 'full' | 'stacked' | 'minimal';
 
@@ -64,7 +69,8 @@ export function computeLayout(columns: number, rows: number): Layout {
 		: isShowCup && columns >= FULL_MIN_COLUMNS
 			? 'full'
 			: 'stacked';
-	const cupColumnWidth = mode === 'full' ? CUP_WIDTH + CUP_COLUMN_PADDING : 0;
+	const cupColumnWidth =
+		mode === 'full' ? CUP_FRAME_COLUMNS + CUP_COLUMN_PADDING : 0;
 	return {
 		columns,
 		rows,

@@ -58,7 +58,7 @@ const rowOf = (lines: string[], text: string) =>
 	lines.findIndex(line => line.includes(text));
 
 test('full: cup column left of the stacked panels', t => {
-	const {lines, plan} = draw(120, 40);
+	const {lines, plan} = draw(120, 40, {stats: 'stack'});
 	t.is(plan.mode, 'full');
 	const cup = lines[rowOf(lines, 'cup0')]!;
 	t.true(cup.indexOf('cup0') < cup.indexOf('ses0'));
@@ -68,7 +68,7 @@ test('full: cup column left of the stacked panels', t => {
 });
 
 test('stacked: one column, cup above the panels', t => {
-	const {lines, plan} = draw(70, 40);
+	const {lines, plan} = draw(70, 40, {stats: 'stack'});
 	t.is(plan.mode, 'stacked');
 	t.true(rowOf(lines, 'cup2') < rowOf(lines, 'ses0'));
 	t.true(rowOf(lines, 'ses2') < rowOf(lines, 'sta0'));

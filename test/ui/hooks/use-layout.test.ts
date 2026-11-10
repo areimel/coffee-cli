@@ -1,11 +1,11 @@
 import test from 'ava';
-import {CUP_WIDTH} from '../../../source/features/cup/cup-art.js';
+import {CUP_FRAME_COLUMNS} from '../../../source/layouts/dashboard-plan.js';
 import {
 	computeLayout,
 	type Layout,
 } from '../../../source/ui/hooks/use-layout.js';
 
-const cupCol = CUP_WIDTH + 2;
+const cupCol = CUP_FRAME_COLUMNS + 1;
 
 const table: Array<[number, number, Omit<Layout, 'columns' | 'rows'>]> = [
 	[
@@ -76,7 +76,7 @@ const table: Array<[number, number, Omit<Layout, 'columns' | 'rows'>]> = [
 	],
 	[
 		100,
-		34,
+		27,
 		{
 			mode: 'full',
 			showHeadingArt: false,
@@ -87,7 +87,7 @@ const table: Array<[number, number, Omit<Layout, 'columns' | 'rows'>]> = [
 	],
 	[
 		100,
-		35,
+		28,
 		{
 			mode: 'full',
 			showHeadingArt: true,

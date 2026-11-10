@@ -1,15 +1,17 @@
 /**
 Pure fitting logic for the dashboard: given the terminal size and the measured height of each region, pick the richest arrangement that fits without clipping.
 
-Degradation order (each step only when the previous one still does not fit):
+Degradation order (each step only when the previous one still does not fit; at every step Session and Stats side by side is tried before stacked):
 1. Heading art becomes a one-line title.
-2. Lower-priority stat lines are dropped.
-3. Session and Stats sit side by side instead of stacked.
-4. The cup is hidden (then steps 1-3 are retried without it).
-5. Session collapses to one status line; stats lines are dropped, then hidden.
+2. The credits block under the cup is hidden.
+3. Lower-priority stat lines are dropped, one at a time.
+4. Session and Stats stack instead of sitting side by side (tried per stat count, after the beside form).
+5. The cup is hidden; steps 1, 3 and 4 are retried without it (credits belong to the cup).
+6. Session collapses to one status line; stats lines are dropped, then hidden.
 The options slot (editor or overlay) is always kept whole.
 */
-import {CUP_LINES} from '../features/cup/cup-art.js';
+import {CREDITS_ROWS} from '../features/cup/credits.js';
+import {CUP_LINES, CUP_WIDTH} from '../features/cup/cup-art.js';
 import {STEAM_HEIGHT} from '../features/cup/steam.js';
 import {HEADING_HEIGHT} from '../features/heading/heading-art.js';
 import type {Layout, LayoutMode} from '../ui/hooks/use-layout.js';
@@ -25,9 +27,18 @@ Top border line (which carries the title) plus bottom border line of a `Panel`.
 */
 export const PANEL_CHROME_ROWS = 2;
 /**
-Narrowest Session panel used when it shares a row with Stats.
+Border (2) plus horizontal padding (2) of a `Panel`.
 */
-export const SESSION_MIN_WIDTH = 40;
+export const PANEL_CHROME_COLUMNS = 4;
+/**
+The framed cup: a `Panel` around the steam and cup art.
+*/
+export const CUP_FRAME_ROWS = CUP_ROWS + PANEL_CHROME_ROWS;
+export const CUP_FRAME_COLUMNS = CUP_WIDTH + PANEL_CHROME_COLUMNS;
+/**
+Narrowest Session panel used when it shares a row with Stats: the widest fixed line (`● Display gnome-session-inhibit`, 31 cells) plus the panel chrome, with one cell to spare.
+*/
+export const SESSION_MIN_WIDTH = 36;
 /**
 Panels never grow wider than this; the dashboard is centred in wider terminals.
 */
@@ -40,6 +51,10 @@ export type DashboardPlan = {
 	mode: LayoutMode;
 	showHeadingArt: boolean;
 	showCup: boolean;
+	/**
+	Credits block pinned to the bottom of the cup frame; only with the cup.
+	*/
+	showCredits: boolean;
 	session: SessionForm;
 	stats: StatsForm;
 	/**
@@ -90,37 +105,64 @@ export type PlanInput = {
 type Candidate = {
 	isCup: boolean;
 	isArt: boolean;
+	isCredits: boolean;
 	session: SessionForm;
 	stats: StatsForm;
 	count: number;
 };
 
+const FORMS = ['beside', 'stack'] as const;
+
 function* candidates({layout, stats}: PlanInput): Generator<Candidate> {
 	for (const isCup of layout.showCup ? [true, false] : [false]) {
-		if (layout.showHeadingArt) {
-			yield {
-				isCup,
-				isArt: true,
-				session: 'panel',
-				stats: 'stack',
-				count: stats.count,
-			};
+		// Tiers at the full stat count, richest first: art, then credits, then neither.
+		const tiers = [
+			...(layout.showHeadingArt ? [{isArt: true, isCredits: isCup}] : []),
+			...(isCup ? [{isArt: false, isCredits: true}] : []),
+		];
+
+		for (const {isArt, isCredits} of tiers) {
+			for (const form of FORMS) {
+				yield {
+					isCup,
+					isArt,
+					isCredits,
+					session: 'panel',
+					stats: form,
+					count: stats.count,
+				};
+			}
 		}
 
-		for (const form of ['stack', 'beside'] as const) {
-			for (let {count} = stats; count >= stats.minCount; count--) {
-				yield {isCup, isArt: false, session: 'panel', stats: form, count};
+		for (let {count} = stats; count >= stats.minCount; count--) {
+			for (const form of FORMS) {
+				yield {
+					isCup,
+					isArt: false,
+					isCredits: false,
+					session: 'panel',
+					stats: form,
+					count,
+				};
 			}
 		}
 	}
 
 	for (let {count} = stats; count >= stats.minCount; count--) {
-		yield {isCup: false, isArt: false, session: 'line', stats: 'stack', count};
+		yield {
+			isCup: false,
+			isArt: false,
+			isCredits: false,
+			session: 'line',
+			stats: 'stack',
+			count,
+		};
 	}
 
 	yield {
 		isCup: false,
 		isArt: false,
+		isCredits: false,
 		session: 'line',
 		stats: 'hidden',
 		count: 0,
@@ -152,13 +194,16 @@ function measure(
 		? Math.max(sessionRows, statsRows)
 		: sessionRows + statsRows;
 	const panels = upper + input.slotHeight(panelWidth);
-	const cupRows = candidate.isCup ? CUP_ROWS : 0;
+	const cupRows = candidate.isCup
+		? CUP_FRAME_ROWS + (candidate.isCredits ? CREDITS_ROWS : 0)
+		: 0;
 	const body = mode === 'full' ? Math.max(cupRows, panels) : cupRows + panels;
 	const heading = candidate.isArt ? HEADING_ART_ROWS : TITLE_ROWS;
 	return {
 		mode,
 		showHeadingArt: candidate.isArt,
 		showCup: candidate.isCup,
+		showCredits: candidate.isCup && candidate.isCredits,
 		session: candidate.session,
 		stats: candidate.stats,
 		statsLineCount: candidate.count,
@@ -178,6 +223,7 @@ export function planDashboard(input: PlanInput): DashboardPlan {
 			mode: 'minimal',
 			showHeadingArt: false,
 			showCup: false,
+			showCredits: false,
 			session: 'line',
 			stats: 'hidden',
 			statsLineCount: 0,
