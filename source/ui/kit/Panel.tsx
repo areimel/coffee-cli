@@ -49,6 +49,7 @@ export function Panel({
 			borderStyle={PANEL_BORDER_STYLE}
 			paddingX={paddingX}
 			{...optionalProp('borderColor', color)}
+			{...optionalProp('borderBackgroundColor', theme.colors.bg)}
 			{...optionalProp('width', width)}
 			{...optionalProp('height', height)}
 			{...optionalProp('flexGrow', flexGrow)}

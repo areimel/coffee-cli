@@ -1,25 +1,28 @@
 import {useWindowSize} from 'ink';
-import {CUP_WIDTH} from '../../features/cup/cup-art.js';
+import {CUP_LINES, CUP_WIDTH} from '../../features/cup/cup-art.js';
+import {STEAM_HEIGHT} from '../../features/cup/steam.js';
 
 /**
-Heading art needs at least this many columns and rows, else a one-line title.
+These are upper-bound gates from measured region heights; `layouts/dashboard-plan.ts` then fits the actual content (which varies with battery, notes and options) and may still drop the art or the cup.
+
+Heading art (49 columns, 6 rows + 1 gap) is only considered from this size. Below it: a one-line title. 35 rows = art 7 + Session 10 + Stats 9 (6 lines) + Options 8 + hints 1.
 */
 export const HEADING_ART_MIN_COLUMNS = 64;
-export const HEADING_ART_MIN_ROWS = 26;
+export const HEADING_ART_MIN_ROWS = 35;
 /**
-Cup is hidden below this size.
+Cup (steam + cup art, 14 rows) is hidden below this size: it needs its own rows plus the title and hints.
 */
 export const CUP_MIN_COLUMNS = 50;
-export const CUP_MIN_ROWS = 18;
+export const CUP_MIN_ROWS = STEAM_HEIGHT + CUP_LINES.length + 2;
 /**
 Below this width panels stack under the cup; at or above it (with the cup shown) the cup sits left of the panels.
 */
 export const FULL_MIN_COLUMNS = 90;
 /**
-Single status line plus hints below this size.
+Single status line plus hints below this size. 12 rows = title 1 + status line 1 + Options panel (up to 9) + hints 1, so above it the options editor always fits whole.
 */
 export const MINIMAL_MAX_COLUMNS = 40;
-export const MINIMAL_MAX_ROWS = 10;
+export const MINIMAL_MAX_ROWS = 12;
 /**
 Cup column = cup art plus this much gap.
 */

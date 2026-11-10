@@ -75,6 +75,50 @@ const table: Array<[number, number, Omit<Layout, 'columns' | 'rows'>]> = [
 		},
 	],
 	[
+		100,
+		34,
+		{
+			mode: 'full',
+			showHeadingArt: false,
+			showCup: true,
+			cupColumnWidth: cupCol,
+			panelWidth: 100 - cupCol,
+		},
+	],
+	[
+		100,
+		35,
+		{
+			mode: 'full',
+			showHeadingArt: true,
+			showCup: true,
+			cupColumnWidth: cupCol,
+			panelWidth: 100 - cupCol,
+		},
+	],
+	[
+		80,
+		15,
+		{
+			mode: 'stacked',
+			showHeadingArt: false,
+			showCup: false,
+			cupColumnWidth: 0,
+			panelWidth: 80,
+		},
+	],
+	[
+		80,
+		11,
+		{
+			mode: 'minimal',
+			showHeadingArt: false,
+			showCup: false,
+			cupColumnWidth: 0,
+			panelWidth: 80,
+		},
+	],
+	[
 		38,
 		20,
 		{
