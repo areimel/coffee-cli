@@ -33,6 +33,7 @@ export const ALL_KEY_BINDINGS: readonly KeyHint[] = [
 	{keys: 'esc', label: 'cancel'},
 	{keys: 'space', label: 'pause/resume'},
 	{keys: 't', label: 'themes'},
+	{keys: 'T', label: 'next theme'},
 	{keys: 'a', label: 'animation'},
 	{keys: '?', label: 'help'},
 	{keys: 'q', label: 'quit'},

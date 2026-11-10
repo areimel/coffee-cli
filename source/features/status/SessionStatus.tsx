@@ -34,7 +34,7 @@ export function SessionStatus({state, now}: SessionStatusProps) {
 				<ModelBadge data={model.phase} />
 			</Box>
 			<StatRow label="Elapsed" value={model.elapsed} labelWidth={LABEL_WIDTH} />
-			<StatRow label="Ends" value={model.ends} labelWidth={LABEL_WIDTH} />
+			<StatRow label="Timer" value={model.ends} labelWidth={LABEL_WIDTH} />
 			{model.pid === undefined ? null : (
 				<StatRow
 					label="Watching"

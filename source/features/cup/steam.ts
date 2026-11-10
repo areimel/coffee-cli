@@ -13,29 +13,10 @@ export type SteamOptions = {
 /**
  Glyphs steam may use, from dense (near the cup) to faint (high up).
  */
-export const STEAM_GLYPHS = "(){}~'`.,";
-
-const LIGHT = ['~', "'", '`', ',', '.'] as const;
-
-/**
-Small integer hash (Park-Miller steps); deterministic, no Math.random.
-*/
-function hash(...values: number[]): number {
-	let h = 12_345;
-	for (const value of values) {
-		h = ((h + Math.trunc(value) + 7) * 48_271) % 2_147_483_647;
-		h = ((h + 13) * 16_807) % 2_147_483_647;
-	}
-
-	return h;
-}
+export const STEAM_GLYPHS = "()~'.";
 
 function mod(a: number, n: number): number {
 	return ((a % n) + n) % n;
-}
-
-function pick<T>(items: readonly T[], index: number): T {
-	return items[index % items.length]!;
 }
 
 type Resolved = Required<SteamOptions>;
@@ -51,23 +32,50 @@ function resolve(options: SteamOptions): Resolved {
 }
 
 /**
-Horizontal offset of a wisp at a row (0 is the bottom row) and frame.
-A sine travelling upward: the curl seems to drift up the column.
+Phase of a wisp's curl at a row (0 is the bottom row) and frame. The phase
+falls as the frame advances, so the curl travels up the column.
 */
-function offsetAt(row: number, frame: number, wisp: number, o: Resolved) {
+function curlAt(row: number, frame: number, wisp: number, o: Resolved) {
+	const turn = (2 * Math.PI * frame) / o.period;
+	const slant = row * 0.9;
 	const wispPhase = wisp * 2.4;
 	const seedPhase = o.seed * 0.7;
+	return Math.sin(slant - turn + wispPhase + seedPhase);
+}
+
+/**
+How many rows a wisp reaches at a frame. Wisps breathe out of step with
+each other, and the outer ones are shorter than the middle one.
+*/
+function wispLength(wisp: number, frame: number, o: Resolved): number {
 	const turn = (2 * Math.PI * frame) / o.period;
-	const slant = row * 0.62;
-	const wave = Math.sin(slant + turn + wispPhase + seedPhase);
-	const amplitude = Math.min(row, 4) * 0.3;
-	return wave * (amplitude + 0.9);
+	const base = o.height - (wisp % 2 === 1 ? 1 : 2);
+	const wispPhase = wisp * 2.1;
+	const seedPhase = o.seed * 1.3;
+	const breath = Math.round(1.2 * Math.sin(turn + wispPhase + seedPhase));
+	return Math.max(2, Math.min(o.height, base + breath));
+}
+
+/**
+Glyph for a cell: a faint tip, an occasional flat stroke under it, else a
+paren that leans the way the wisp curls.
+*/
+function glyphAt(fromTip: number, curl: number, parity: number): string {
+	if (fromTip === 0) {
+		return parity % 2 === 0 ? '.' : "'";
+	}
+
+	if (fromTip === 1 && Math.abs(curl) < 0.35) {
+		return '~';
+	}
+
+	return curl >= 0 ? ')' : '(';
 }
 
 type Cell = {x: number; glyph: string};
 
 /**
-What one wisp draws at one row (0 is the bottom), or undefined for a gap.
+What one wisp draws at one row (0 is the bottom), or undefined above its tip.
 */
 function wispCell(
 	wisp: number,
@@ -75,41 +83,18 @@ function wispCell(
 	f: number,
 	o: Resolved,
 ): Cell | undefined {
-	// Gap pattern drifts upward at `cycle` rows per loop.
-	const cycle = o.height * 2;
-	const shift = Math.floor((f * cycle) / o.period);
-	const origin = o.origins[wisp] ?? 0;
-	const h = hash(o.seed, wisp, mod(row - shift, cycle));
-	const fade = row / Math.max(1, o.height - 1);
-	const isGap = row > 1 && (h % 100) / 100 < fade * fade * 0.5;
-	// Outer wisps are shorter than the middle one.
-	const isCut = wisp % 2 === 1 && row >= o.height - 1;
-	if (isGap || isCut) {
+	const length = wispLength(wisp, f, o);
+	if (row >= length) {
 		return undefined;
 	}
 
-	const here = offsetAt(row, f, wisp, o);
-	const next = offsetAt(row + 1, f, wisp, o);
-	const x = origin + Math.round(here);
-	if (x < 0 || x >= o.width) {
-		return undefined;
-	}
-
-	const g = Math.floor(h / 256);
-	const isRising = next > here || (next === here && g % 2 === 0);
-	let glyph: string;
-	if (fade < 0.34) {
-		glyph = isRising ? ')' : '(';
-		if (g % 4 === 0) {
-			glyph = isRising ? '}' : '{';
-		}
-	} else if (fade < 0.67) {
-		glyph = g % 3 === 0 ? '~' : isRising ? ')' : '(';
-	} else {
-		glyph = pick(LIGHT, g);
-	}
-
-	return {x, glyph};
+	const curl = curlAt(row, f, wisp, o);
+	// The wisp leaves the cup straight and sways more as it climbs.
+	const sway = Math.min(row, 3) * 0.45;
+	const x = (o.origins[wisp] ?? 0) + Math.round(curl * sway);
+	return x < 0 || x >= o.width
+		? undefined
+		: {x, glyph: glyphAt(length - 1 - row, curl, row + wisp)};
 }
 
 /**
