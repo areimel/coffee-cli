@@ -72,7 +72,7 @@ Gates are in `source/ui/hooks/use-layout.ts`; they are upper bounds. `layouts/da
 - `supervisor.ts` is NOT React: `getState()` / `subscribe()`, clock and scheduler injected; it composes the store, lock coordinator and monitor. One 1 s tick; battery re-read every 15 s. React reads it via `use-session`.
 - One lock handle per kind (`system`, `display`) so each is reported honestly.
 - Live edits to timing / battery / PID only swap predicates; the display toggle acquires/releases the display lock (new before old).
-- A dying lock child is retried (0.5 s, 2 s, 5 s). Display still failing → `degraded`; system still failing → `stopped(lock-failed)` with stderr shown.
+- A dying lock child is retried (0.5 s, 2 s, 5 s); a recovered lock must stay held 60 s to earn a fresh retry budget. Re-entering a duration restarts the countdown. Display still failing → `degraded`; system still failing → `stopped(lock-failed)` with stderr shown.
 - Space pauses/resumes (locks released, app stays open). Only automatic stop conditions exit the app, with a one-line summary.
 
 ### Lock mechanisms

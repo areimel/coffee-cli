@@ -182,7 +182,7 @@ Saved: theme, session end (indefinite / duration / until), display lock, AC-only
 
 ## Plain mode
 
-When stdout is not a terminal (piped or redirected), or with `--plain`, coffee-cli skips the dashboard and prints one log line per state change. Stop conditions and exit behaviour are the same.
+When stdin or stdout is not a terminal (piped or redirected), or with `--plain`, coffee-cli skips the dashboard and prints one log line per state change. Stop conditions and exit behaviour are the same.
 
 ```bash
 coffee-cli -d 1h | tee awake.log
