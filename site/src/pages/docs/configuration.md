@@ -14,16 +14,16 @@ Defaults are amber theme, indefinite duration, display lock enabled, AC-only dis
 
 ## Configuration paths
 
-| Platform | Default file                                                                                   |
-| -------- | ---------------------------------------------------------------------------------------------- |
-| Linux    | `$XDG_CONFIG_HOME/coffee-cli/config.json`, falling back to `~/.config/coffee-cli/config.json`. |
-| macOS    | `~/Library/Application Support/coffee-cli/config.json`.                                        |
+| Platform | Default file                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| Linux    | `$XDG_CONFIG_HOME/coffee-term/config.json`, falling back to `~/.config/coffee-term/config.json`. |
+| macOS    | `~/Library/Application Support/coffee-term/config.json`.                                         |
 
 Override the location with an environment variable or flag. The flag takes precedence:
 
 ```bash
-COFFEE_CLI_CONFIG=/path/to/config.json coffee-cli
-coffee-cli --config /path/to/config.json
+COFFEE_TERM_CONFIG=/path/to/config.json coffee-term
+coffee-term --config /path/to/config.json
 ```
 
 ## File format
@@ -57,9 +57,9 @@ Invalid fields fall back to their defaults. Unparseable JSON is kept aside as `c
 | `severance` | Cool blue on deep navy.           |
 
 ```bash
-coffee-cli --theme green
-coffee-cli --theme severance --no-animation
-NO_COLOR=1 coffee-cli
+coffee-term --theme green
+coffee-term --theme severance --no-animation
+NO_COLOR=1 coffee-term
 ```
 
 Use `t` in the dashboard for the theme picker, `T` to cycle palettes, and `a` to toggle animated steam. Themes adapt to truecolour, 256-colour, and 16-colour terminals. With `NO_COLOR` set, markers, bold, and inverse text still communicate focus and status.

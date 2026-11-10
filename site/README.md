@@ -1,4 +1,4 @@
-# coffee-cli microsite
+# coffee-term microsite
 
 Astro landing page and complete public user guide, adapted from the Kojima template. See [TEMPLATE.md](TEMPLATE.md) for provenance.
 

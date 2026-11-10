@@ -19,11 +19,11 @@ const docsActive = Astro.url.pathname.startsWith(href("docs/"));
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#141310" />
-    <title>{title === "coffee-cli" ? title : `${title} | coffee-cli`}</title>
+    <title>{title === "coffee-term" ? title : `${title} | coffee-term`}</title>
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={href("favicon.svg")} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="coffee-cli" />
+    <meta property="og:site_name" content="coffee-term" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -47,8 +47,8 @@ const docsActive = Astro.url.pathname.startsWith(href("docs/"));
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="wordmark" href={href("")} aria-label="coffee-cli home"
-          ><span aria-hidden="true">&gt;_</span>coffee-cli</a
+        <a class="wordmark" href={href("")} aria-label="coffee-term home"
+          ><span aria-hidden="true">&gt;_</span>coffee-term</a
         >
         <nav class="site-nav" aria-label="Main navigation">
           <a href={href("docs/")} aria-current={docsActive ? "true" : undefined}
@@ -67,7 +67,7 @@ const docsActive = Astro.url.pathname.startsWith(href("docs/"));
     <footer class="site-footer">
       <div class="container footer-inner">
         <span
-          >coffee-cli / made by <a href="https://github.com/areimel"
+          >coffee-term / made by <a href="https://github.com/areimel"
             >Alec Reimel</a
           ></span
         >

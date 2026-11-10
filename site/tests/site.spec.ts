@@ -101,6 +101,18 @@ test("theme toggle works when storage is blocked", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("home and docs show the npm install and npx commands", async ({
+  page,
+}) => {
+  for (const route of [home, `${home}docs/`]) {
+    await page.goto(route);
+    const main = page.locator("main");
+    await expect(main).toContainText("npm install -g coffee-term");
+    await expect(main).toContainText("npx coffee-term");
+    await expect(main).not.toContainText("not published to npm");
+  }
+});
+
 test("preview themes expose selection and commands can be copied", async ({
   page,
   context,
@@ -120,7 +132,7 @@ test("preview themes expose selection and commands can be copied", async ({
     .click();
   await expect(page.getByText("Copied", { exact: true }).first()).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(
-    /coffee-cli|git clone|npm/,
+    /coffee-term/,
   );
 });
 
@@ -149,7 +161,9 @@ test("content and navigation remain available without JavaScript", async ({
     await expect(page.locator("main h1")).toBeVisible();
     await page.getByRole("link", { name: "Docs", exact: true }).first().click();
     await expect(page).toHaveURL(/\/coffee-cli\/docs\//);
-    await expect(page.locator("main")).toContainText("npm");
+    await expect(page.locator("main")).toContainText(
+      "npm install -g coffee-term",
+    );
   } finally {
     await context.close();
   }
