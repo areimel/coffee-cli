@@ -14,6 +14,8 @@ import {
 	themePickerHeight,
 } from './region-heights.js';
 
+const HINT_ROWS = 1;
+
 export type PlanParameters = {
 	layout: Layout;
 	state: SessionState;
@@ -38,7 +40,11 @@ export function planForState({
 }: PlanParameters): DashboardPlan {
 	return planDashboard({
 		layout,
-		footerRows: footerRows(warnings),
+		// Minimal mode has no frame, so its hints take a row of their own.
+		footerRows:
+			layout.mode === 'minimal'
+				? HINT_ROWS + footerRows(warnings)
+				: footerRows(warnings),
 		sessionHeight: width => sessionPanelHeight(state, now, width),
 		stats: {
 			count: lines.length,

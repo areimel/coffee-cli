@@ -11,12 +11,9 @@ import type {StatLine} from '../features/stats/stats-model.js';
 import {buildStatus} from '../features/status/status-model.js';
 import {THEMES} from '../theme/palettes.js';
 import {THEME_NAMES} from '../theme/tokens.js';
-import {PANEL_CHROME_ROWS} from './dashboard-plan.js';
+import {PANEL_CHROME_COLUMNS, PANEL_CHROME_ROWS} from './dashboard-plan.js';
 
-/**
-Border (2) plus horizontal padding (2) of a `Panel`.
-*/
-export const PANEL_CHROME_COLUMNS = 4;
+export {PANEL_CHROME_COLUMNS} from './dashboard-plan.js';
 /**
 `SessionStatus` label column (8) plus its gap.
 */

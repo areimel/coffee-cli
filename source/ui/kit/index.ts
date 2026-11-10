@@ -1,4 +1,12 @@
 export {Badge, type BadgeProps, type BadgeState} from './Badge.js';
+export {BorderRule, type BorderRuleProps} from './BorderRule.js';
+export {bodyOffsetUnderTop, Frame, type FrameProps} from './Frame.js';
+export {
+	centredOffset,
+	FRAME_BORDER_COLUMNS,
+	FRAME_GLYPHS,
+	splitRule,
+} from './frame-math.js';
 export {FieldRow, type FieldRowProps} from './FieldRow.js';
 export {KeyHints, type KeyHint, type KeyHintsProps} from './KeyHints.js';
 export {

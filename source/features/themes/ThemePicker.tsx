@@ -9,6 +9,7 @@ export type ThemePickerProps = {
 	readonly onPreview: (name: ThemeName) => void;
 	readonly onSelect: (name: ThemeName) => void;
 	readonly onCancel: () => void;
+	readonly flexGrow?: number;
 };
 
 const HINTS: Record<ThemeName, string> = {
@@ -32,6 +33,7 @@ export function ThemePicker({
 	onPreview,
 	onSelect,
 	onCancel,
+	flexGrow,
 }: ThemePickerProps) {
 	useInput(
 		(input, key) => {
@@ -53,7 +55,11 @@ export function ThemePicker({
 	);
 
 	return (
-		<Panel title="Theme" isFocused={isActive}>
+		<Panel
+			title="Theme"
+			isFocused={isActive}
+			{...(flexGrow === undefined ? {} : {flexGrow})}
+		>
 			<SelectList
 				isFocused
 				items={ITEMS}

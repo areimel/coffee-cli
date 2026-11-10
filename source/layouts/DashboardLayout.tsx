@@ -1,7 +1,16 @@
 import type {ReactNode} from 'react';
 import {Box} from 'ink';
+import {
+	CompactTitle,
+	HeadingArtBody,
+	HeadingCrown,
+} from '../features/heading/Heading.js';
+import {HEADING_WIDTH} from '../features/heading/heading-art.js';
+import {COMPACT_TITLE_WIDTH} from '../features/heading/title.js';
 import type {Layout} from '../ui/hooks/use-layout.js';
+import {bodyOffsetUnderTop, Frame} from '../ui/kit/index.js';
 import type {DashboardPlan} from './dashboard-plan.js';
+import {frameHeight, frameWidth} from './frame-plan.js';
 
 export type DashboardLayoutProps = {
 	readonly layout: Layout;
@@ -9,10 +18,6 @@ export type DashboardLayoutProps = {
 	What fits, from `planDashboard`.
 	*/
 	readonly plan: DashboardPlan;
-	/**
-	Heading (art or one-line title, matching `plan.showHeadingArt`).
-	*/
-	readonly heading: ReactNode;
 	readonly cup: ReactNode;
 	/**
 	The Session panel.
@@ -32,9 +37,13 @@ export type DashboardLayoutProps = {
 	*/
 	readonly overlay?: ReactNode;
 	/**
-	Key hints and warnings, pinned to the bottom row(s).
+	Key hints: the frame's bottom edge (their own row in minimal mode).
 	*/
-	readonly footer: ReactNode;
+	readonly hints: ReactNode;
+	/**
+	Warning lines, on the last rows inside the frame (above the hints in minimal mode).
+	*/
+	readonly warnings: ReactNode;
 	/**
 	Theme background painted over the whole screen.
 	*/
@@ -74,19 +83,19 @@ function Panels({
 }
 
 /**
-Arranges the regions; decides nothing itself. `full`: heading, then cup column left of the stacked panels. `stacked`: one column, cup (if shown) above the panels. `minimal`: status line (or the open overlay). Key hints always sit on the bottom row, and the root is exactly the terminal size so the alternate screen never scrolls.
+Arranges the regions; decides nothing itself. Everything but `minimal` sits in the heavy outer frame, centred and hugging the content (width and height): the first art row (or the compact title) in its top edge, the rest of the art then 2 blank rows (1 with the title) inside, the key hints in its bottom edge and warnings on its last rows. `full`: the framed cup column left of the panel column (Session and Stats side by side or stacked, then the options slot); both columns stretch to end on the same row. `stacked`: one column, cup (if shown) above the panels. `minimal`: status line (or the open overlay), warnings and hints, unframed. The root is exactly the terminal size so the alternate screen never scrolls.
 */
 export function DashboardLayout({
 	layout,
 	plan,
-	heading,
 	cup,
 	session,
 	statusLine,
 	stats,
 	options,
 	overlay,
-	footer,
+	hints,
+	warnings,
 	backgroundColor,
 }: DashboardLayoutProps) {
 	const slot = overlay ?? options;
@@ -100,9 +109,7 @@ export function DashboardLayout({
 		/>
 	);
 	let body: ReactNode;
-	if (plan.mode === 'minimal') {
-		body = <Box width={layout.columns}>{overlay ?? statusLine}</Box>;
-	} else if (plan.mode === 'full') {
+	if (plan.mode === 'full') {
 		body = (
 			<Box>
 				<Box
@@ -120,7 +127,7 @@ export function DashboardLayout({
 		body = (
 			<Box flexDirection="column">
 				{plan.showCup ? (
-					<Box flexShrink={0} justifyContent="center">
+					<Box flexShrink={0} flexDirection="column" alignItems="center">
 						{cup}
 					</Box>
 				) : null}
@@ -129,26 +136,55 @@ export function DashboardLayout({
 		);
 	}
 
-	return (
-		<Box
-			flexDirection="column"
-			alignItems="center"
-			width={layout.columns}
-			height={layout.rows}
-			overflow="hidden"
-			{...(backgroundColor === undefined ? {} : {backgroundColor})}
-		>
-			{plan.mode === 'minimal' ? null : (
-				<Box flexShrink={0} marginBottom={plan.showHeadingArt ? 1 : 0}>
-					{heading}
+	const root = {
+		flexDirection: 'column',
+		alignItems: 'center',
+		width: layout.outerColumns,
+		height: layout.outerRows,
+		overflow: 'hidden',
+		...(backgroundColor !== undefined && {backgroundColor}),
+	} as const;
+	if (plan.mode === 'minimal') {
+		return (
+			<Box {...root}>
+				<Box flexGrow={1} flexShrink={1} overflow="hidden">
+					<Box width={layout.columns}>{overlay ?? statusLine}</Box>
 				</Box>
-			)}
-			<Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
-				{body}
+				<Box flexDirection="column" flexShrink={0}>
+					{warnings}
+					{hints}
+				</Box>
 			</Box>
-			<Box flexDirection="column" flexShrink={0}>
-				{footer}
-			</Box>
+		);
+	}
+
+	const width = frameWidth(plan, layout);
+	const topWidth = plan.showHeadingArt ? HEADING_WIDTH : COMPACT_TITLE_WIDTH;
+	return (
+		<Box {...root} justifyContent="center">
+			<Frame
+				width={width}
+				height={frameHeight(plan, layout)}
+				top={plan.showHeadingArt ? <HeadingCrown /> : <CompactTitle />}
+				topWidth={topWidth}
+				bottom={hints}
+			>
+				<Box
+					flexDirection="column"
+					flexGrow={1}
+					flexShrink={1}
+					overflow="hidden"
+				>
+					{plan.showHeadingArt ? (
+						<HeadingArtBody
+							marginLeft={bodyOffsetUnderTop(width, HEADING_WIDTH)}
+						/>
+					) : null}
+					<Box height={plan.showHeadingArt ? 2 : 1} flexShrink={0} />
+					{body}
+				</Box>
+				{warnings}
+			</Frame>
 		</Box>
 	);
 }
