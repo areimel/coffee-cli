@@ -3,35 +3,35 @@
 Keep your machine awake from a cosy terminal dashboard: a `caffeinate` you can see and steer.
 
 ```
-                                     ██████╗ ██████╗ ███████╗███████╗███████╗███████╗
-                                    ██╔════╝██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝
-                                    ██║     ██║   ██║█████╗  █████╗  █████╗  █████╗
-                                    ██║     ██║   ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══╝
-                                    ╚██████╗╚██████╔╝██║     ██║     ███████╗███████╗
-                                     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝╚══════╝
-
-         ╭─ brewing ──────────────╮ ╭─ Session ─────────────────────────────────╮╭─ Stats ─────────────────────╮
-         │                        │ │ ● AWAKE                                   ││ Uptime  3h 02m              │
-         │      '                 │ │                                           ││ Session 00:00:00            │
-         │       ~  '     .       │ │ Elapsed  00:00:00                         ││ Battery ████████░░ 80%      │
-         │        ) (     )       │ │ Timer    no limit                         ││ Power   on AC, not charging │
-         │        ) (    (        │ │                                           ││ Load    0.42 0.38 0.35      │
-         │       )   )   (        │ │ ● System systemd-inhibit                  ││ Host    test-host           │
-         │       (   )   (        │ │ ● Display gnome-session-inhibit           ││                             │
-         │   ╭──────────────╮     │ ╰───────────────────────────────────────────╯╰─────────────────────────────╯
-         │   │▒▒▒▒▒▒▒▒▒▒▒▒▒▒│     │ ╭─ ❯ Options ──────────────────────────────────────────────────────────────╮
-         │   │              │──╮  │ │ ❯ Mode        [ ‹ indefinite › ]                                         │
-         │   │              │  │  │ │   Display     [ ● on ]                                                   │
-         │   ╰╮            ╭╯──╯  │ │   AC only     [ ○ off ]                                                  │
-         │    ╰────────────╯      │ │   Min battery [ off ]                                                    │
-         │  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │ │   Wait PID    [ none ]                                                   │
-         │ ────────────────────── │ │                                                                          │
-         │ Alec Reimel            │ │                                                                          │
-         │ github.com/areimel     │ │                                                                          │
-         │ bio.alecreimel.com     │ │                                                                          │
-         ╰────────────────────────╯ ╰──────────────────────────────────────────────────────────────────────────╯
-
-↑↓ move  ←→ change  enter edit  space pause  t theme  a animation  ? help  q quit
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━  ██████╗ ██████╗ ███████╗███████╗███████╗███████╗ ━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                            ██╔════╝██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝                            ┃
+┃                            ██║     ██║   ██║█████╗  █████╗  █████╗  █████╗                              ┃
+┃                            ██║     ██║   ██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══╝                              ┃
+┃                            ╚██████╗╚██████╔╝██║     ██║     ███████╗███████╗                            ┃
+┃                             ╚═════╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝╚══════╝                            ┃
+┃                                                                                                         ┃
+┃                                                                                                         ┃
+┃ ╭─ brewing ──────────────╮ ╭─ Session ─────────────────────────────────╮╭─ Stats ─────────────────────╮ ┃
+┃ │                        │ │ ● AWAKE                                   ││ Uptime  3h 02m              │ ┃
+┃ │      '                 │ │                                           ││ Session 00:00:00            │ ┃
+┃ │       ~  '     .       │ │ Elapsed  00:00:00                         ││ Battery ████████░░ 80%      │ ┃
+┃ │        ) (     )       │ │ Timer    no limit                         ││ Power   on AC, not charging │ ┃
+┃ │        ) (    (        │ │                                           ││ Load    0.42 0.38 0.35      │ ┃
+┃ │       )   )   (        │ │ ● System systemd-inhibit                  ││ Host    test-host           │ ┃
+┃ │       (   )   (        │ │ ● Display gnome-session-inhibit           ││                             │ ┃
+┃ │   ╭──────────────╮     │ ╰───────────────────────────────────────────╯╰─────────────────────────────╯ ┃
+┃ │   │▒▒▒▒▒▒▒▒▒▒▒▒▒▒│     │ ╭─ ❯ Options ──────────────────────────────────────────────────────────────╮ ┃
+┃ │   │              │──╮  │ │ ❯ Mode        [ ‹ indefinite › ]                                         │ ┃
+┃ │   │              │  │  │ │   Display     [ ● on ]                                                   │ ┃
+┃ │   ╰╮            ╭╯──╯  │ │   AC only     [ ○ off ]                                                  │ ┃
+┃ │    ╰────────────╯      │ │   Min battery [ off ]                                                    │ ┃
+┃ │  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │ │   Wait PID    [ none ]                                                   │ ┃
+┃ │ ────────────────────── │ │                                                                          │ ┃
+┃ │ Alec Reimel            │ │                                                                          │ ┃
+┃ │ github.com/areimel     │ │                                                                          │ ┃
+┃ │ bio.alecreimel.com     │ │                                                                          │ ┃
+┃ ╰────────────────────────╯ ╰──────────────────────────────────────────────────────────────────────────╯ ┃
+┗━ ↑↓ move  ←→ change  enter edit  space pause  t theme  a animation  ? help  q quit ━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
 ## What it does
@@ -163,16 +163,16 @@ When a session ends, coffee-cli prints one line, e.g. `coffee-cli: stayed awake 
 
 ## Small terminals
 
-The dashboard fits itself to the terminal. From 90 columns the cup sits left of the panels (framed, with the developer credits under it); narrower, the panels stack under the cup. When the content does not fit, it drops things in this order, trying Session and Stats side by side before stacking them at each step:
+The dashboard sits in a heavy outer frame that hugs its content and is centred in wider terminals. The `COFFEE` art rides in the frame's top edge, the key hints in its bottom edge, and warnings on its last rows. From 90 columns the cup sits left of the panels (framed, with the developer credits under it); narrower, the panels stack under the cup. When the content does not fit, it drops things in this order, trying Session and Stats side by side before stacking them at each step:
 
-1. The big `COFFEE` heading becomes a one-line title (the art needs at least 64 columns and 28 rows).
+1. The big `COFFEE` art becomes a one-line title in the top edge (the art needs at least 64 columns and 29 rows).
 2. The credits under the cup are hidden.
 3. Lower-priority stat lines are dropped.
 4. Session and Stats stack instead of sitting side by side.
-5. The cup is hidden (it needs at least 50 columns and 18 rows).
+5. The cup is hidden (it needs at least 50 columns and 19 rows).
 6. Session collapses to one status line, then the stats go.
 
-Below 40 columns or 12 rows you get a single status line plus key hints. The Options panel is always kept whole.
+Below 40 columns or 13 rows you get an unframed single status line plus key hints. The Options panel is always kept whole.
 
 ## Configuration
 
