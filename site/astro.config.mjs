@@ -6,5 +6,6 @@ export default defineConfig({
   base: "/coffee-cli",
   trailingSlash: "always",
   output: "static",
+  markdown: { shikiConfig: { theme: "github-dark-high-contrast" } },
   integrations: [sitemap()],
 });

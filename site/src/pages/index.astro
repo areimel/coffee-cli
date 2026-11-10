@@ -4,6 +4,7 @@ import TerminalPreview from "../components/TerminalPreview.astro";
 import CodeBlock from "../components/CodeBlock.astro";
 import { href } from "../lib/urls";
 import "../styles/home.css";
+import "../styles/home-responsive.css";
 const installation = `git clone https://github.com/areimel/coffee-cli.git
 cd coffee-cli
 npm install
@@ -24,7 +25,8 @@ npm run dev`;
         <h1 id="home-heading">
           Your machine.<br /><span>Wide awake.</span><span
             class="heading-cursor"
-            aria-hidden="true">_</span>
+            aria-hidden="true">_</span
+          >
         </h1>
         <div class="home-intro-copy">
           <p>
@@ -41,7 +43,8 @@ npm run dev`;
       <span><i aria-hidden="true"></i> In the foreground. In your control.</span
       ><span>No account. No service. Just your terminal.</span><a
         href="https://github.com/areimel/coffee-cli"
-        >View source <span aria-hidden="true">↗</span></a>
+        >View source <span aria-hidden="true">↗</span></a
+      >
     </div>
     <section class="home-capabilities" aria-labelledby="capabilities-heading">
       <div class="home-section-label eyebrow">
@@ -80,7 +83,8 @@ npm run dev`;
             See system and display locks separately, alongside elapsed time,
             battery, power, and load. A missing lock is reported clearly.
           </p><a href={href("docs/platforms/")}
-            >How awake works <span aria-hidden="true">↗</span></a>
+            >How awake works <span aria-hidden="true">↗</span></a
+          >
         </article>
       </div>
     </section>
@@ -92,7 +96,8 @@ npm run dev`;
           Start straight from source. coffee-cli isn't published to npm yet; all
           you need is the repository and a recent Node.js.
         </p><a href={href("docs/")}
-          >Read the installation guide <span aria-hidden="true">↗</span></a>
+          >Read the installation guide <span aria-hidden="true">↗</span></a
+        >
       </div>
       <div class="install-command">
         <CodeBlock code={installation} label="Install from source" /><p>
@@ -136,7 +141,8 @@ npm run dev`;
         <a class="button button-primary" href={href("docs/")}
           >Get started <span aria-hidden="true">↗</span></a
         ><a class="home-final-reference" href={href("docs/reference/")}
-          >Explore the command reference <span aria-hidden="true">↗</span></a>
+          >Explore the command reference <span aria-hidden="true">↗</span></a
+        >
       </div>
     </section>
   </div>

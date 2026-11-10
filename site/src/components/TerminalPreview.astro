@@ -1,5 +1,6 @@
 ---
 import "../styles/terminal.css";
+import "../styles/terminal-responsive.css";
 const heading = ` ██████╗ ██████╗ ███████╗███████╗███████╗███████╗
 ██╔════╝██╔═══██╗██╔════╝██╔════╝██╔════╝██╔════╝
 ██║     ██║   ██║█████╗  █████╗  █████╗  █████╗
@@ -25,14 +26,23 @@ const cup = `       '     .
     <span class="eyebrow">01 / In the terminal</span>
     <div class="preview-themes" role="group" aria-label="Preview colour theme">
       <span>Phosphor</span>
-      <button type="button" data-preview-theme="amber" aria-pressed="true"
-        >Amber</button
+      <button
+        type="button"
+        data-preview-theme="amber"
+        aria-label="Amber"
+        aria-pressed="true">Amber</button
       >
-      <button type="button" data-preview-theme="green" aria-pressed="false"
-        >Green</button
+      <button
+        type="button"
+        data-preview-theme="green"
+        aria-label="Green"
+        aria-pressed="false">Green</button
       >
-      <button type="button" data-preview-theme="severance" aria-pressed="false"
-        >Severance</button
+      <button
+        type="button"
+        data-preview-theme="severance"
+        aria-label="Severance"
+        aria-pressed="false">Severance</button
       >
     </div>
   </div>
@@ -44,7 +54,8 @@ const cup = `       '     .
   >
     <div class="terminal-titlebar">
       <span>~/projects <b>❯ coffee-cli -d 1h30m</b></span><span
-        >TTY / 120 × 32</span>
+        >TTY / 120 × 32</span
+      >
     </div>
     <div class="terminal-screen">
       <div class="terminal-heading">
@@ -73,7 +84,8 @@ const cup = `       '     .
               </dl>
               <div class="lock-status">
                 <span>● System <small>systemd-inhibit</small></span><span
-                  >● Display <small>gnome-session-inhibit</small></span>
+                  >● Display <small>gnome-session-inhibit</small></span
+                >
               </div>
             </div>
             <div class="terminal-panel stats-panel">
@@ -109,7 +121,8 @@ const cup = `       '     .
     </div>
     <figcaption>
       <span>ILLUSTRATIVE PREVIEW / SAMPLE SESSION DATA</span><span
-        >Linux · GNOME · Amber phosphor</span>
+        >Linux · GNOME · Amber phosphor</span
+      >
     </figcaption>
   </figure>
 </div>
