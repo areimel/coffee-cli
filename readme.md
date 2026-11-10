@@ -199,6 +199,17 @@ coffee-cli: awake — system: systemd-inhibit, display: gnome-session-inhibit
 coffee-cli: stayed awake for 1h 0m 0s — Timer finished
 ```
 
+## Website and documentation
+
+The Astro microsite lives in [`site/`](site/README.md), with a landing page and full user guide. It builds independently of the CLI:
+
+```bash
+npm --prefix site ci
+npm --prefix site run dev
+```
+
+Open `http://localhost:4321/coffee-cli/`. See the [site README](site/README.md) for checks and GitHub Pages setup.
+
 ## Development
 
 | Command                                 | What it does                                        |
