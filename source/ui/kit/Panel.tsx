@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react';
 import {Box} from 'ink';
 import {useTheme} from '../../theme/context.js';
+import {BorderRule} from './BorderRule.js';
 import {FOCUS_MARKER} from './glyphs.js';
 import {optionalProp} from './optional-prop.js';
 import {T, toneProps} from './T.js';
@@ -74,9 +75,7 @@ export function Panel({
 					{isFocused ? `${FOCUS_MARKER} ${title}` : title}
 				</T>
 				<T tone={tone}> </T>
-				<Box flexGrow={1} flexBasis={0} height={1} overflow="hidden">
-					<T tone={tone}>{'─'.repeat(300)}</T>
-				</Box>
+				<BorderRule glyph="─" tone={tone} />
 				<T tone={tone}>╮</T>
 			</Box>
 			{body}
