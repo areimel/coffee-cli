@@ -21,9 +21,9 @@ export const HEADING_ART_ROWS = HEADING_HEIGHT + 1;
 export const TITLE_ROWS = 1;
 export const CUP_ROWS = STEAM_HEIGHT + CUP_LINES.length;
 /**
-Border (2) plus title row (1) of a `Panel`.
+Top border line (which carries the title) plus bottom border line of a `Panel`.
 */
-export const PANEL_CHROME_ROWS = 3;
+export const PANEL_CHROME_ROWS = 2;
 /**
 Narrowest Session panel used when it shares a row with Stats.
 */

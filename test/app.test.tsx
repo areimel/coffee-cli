@@ -54,12 +54,12 @@ const sizes: Array<{
 	},
 	{
 		columns: 80,
-		rows: 24,
+		rows: 21,
 		check(t, frame) {
 			t.regex(frame, /COFFEE keeps/v);
 			t.false(frame.includes(CUP_RIM));
 			// Session and Stats side by side.
-			t.regex(frame, /│ Session +││ Stats/v);
+			t.regex(frame, /Session ─+╮╭─ Stats/v);
 			t.regex(frame, /q quit/v);
 		},
 	},
@@ -128,7 +128,10 @@ test.serial(
 			columns: 60,
 			rows: 12,
 			options: {end: {mode: 'duration', ms: 3_600_000}},
-			warnings: ['Config field "theme" is invalid; using the default.'],
+			warnings: [
+				'Config field "theme" is invalid; using the default.',
+				'Config field "session.end" is invalid; using the default.',
+			],
 		});
 		try {
 			await app.waitForPhase('awake');

@@ -42,24 +42,43 @@ export function Panel({
 	children,
 }: PanelProps) {
 	const theme = useTheme();
-	const {color} = toneProps(theme, isFocused ? 'accent' : 'border');
-	return (
+	const tone = isFocused ? 'accent' : 'border';
+	const {color} = toneProps(theme, tone);
+	const sizing = {
+		...optionalProp('width', width),
+		...optionalProp('height', height),
+		...optionalProp('flexGrow', flexGrow),
+	};
+	const body = (
 		<Box
 			flexDirection="column"
 			borderStyle={PANEL_BORDER_STYLE}
 			paddingX={paddingX}
 			{...optionalProp('borderColor', color)}
 			{...optionalProp('borderBackgroundColor', theme.colors.bg)}
-			{...optionalProp('width', width)}
-			{...optionalProp('height', height)}
-			{...optionalProp('flexGrow', flexGrow)}
+			{...(title === undefined ? sizing : {borderTop: false, flexGrow: 1})}
 		>
-			{title === undefined ? null : (
+			{children}
+		</Box>
+	);
+	if (title === undefined) {
+		return body;
+	}
+
+	return (
+		<Box flexDirection="column" {...sizing}>
+			<Box {...optionalProp('backgroundColor', theme.colors.bg)}>
+				<T tone={tone}>╭─ </T>
 				<T bold={isFocused} tone={isFocused ? 'accent' : 'text'}>
 					{isFocused ? `${FOCUS_MARKER} ${title}` : title}
 				</T>
-			)}
-			{children}
+				<T tone={tone}> </T>
+				<Box flexGrow={1} flexBasis={0} height={1} overflow="hidden">
+					<T tone={tone}>{'─'.repeat(300)}</T>
+				</Box>
+				<T tone={tone}>╮</T>
+			</Box>
+			{body}
 		</Box>
 	);
 }

@@ -17,15 +17,15 @@ import type {StatLine} from '../../source/features/stats/stats-model.js';
 import {makeState, NOW} from '../features/state-fixture.js';
 
 /**
-Measured on the real components: Session 10, Stats 3 + lines, Options 9.
+Measured on the real components: Session 9, Stats 2 + lines, Options 8.
 */
 function input(columns: number, rows: number, footerRows = 1): PlanInput {
 	return {
 		layout: computeLayout(columns, rows),
 		footerRows,
-		sessionHeight: width => (width < 40 ? 12 : 10),
+		sessionHeight: width => (width < 40 ? 11 : 9),
 		stats: {count: 7, minCount: 3, width: 33},
-		slotHeight: () => 9,
+		slotHeight: () => 8,
 	};
 }
 
@@ -39,25 +39,25 @@ test('120x40: everything, stacked panels', t => {
 		stats: 'stack',
 		statsLineCount: 7,
 	});
-	t.is(plan.height, HEADING_ART_ROWS + 10 + 10 + 9 + 1);
+	t.is(plan.height, HEADING_ART_ROWS + 9 + 9 + 8 + 1);
 });
 
 test('heading art goes first, then stat lines', t => {
-	const plan = planDashboard(input(100, 30));
+	const plan = planDashboard(input(100, 27));
 	t.like(plan, {showHeadingArt: false, showCup: true, stats: 'stack'});
 	t.is(plan.statsLineCount, 6);
-	t.true(plan.height <= 30);
+	t.true(plan.height <= 27);
 });
 
 test('then session and stats side by side, keeping the cup', t => {
-	const plan = planDashboard(input(100, 26));
+	const plan = planDashboard(input(100, 23));
 	t.like(plan, {showCup: true, stats: 'beside', statsLineCount: 7});
 });
 
 test('80x24 drops the cup and puts stats beside', t => {
-	const plan = planDashboard(input(80, 24));
+	const plan = planDashboard(input(80, 21));
 	t.like(plan, {mode: 'stacked', showCup: false, stats: 'beside'});
-	t.true(plan.height <= 24);
+	t.true(plan.height <= 21);
 });
 
 test('narrow: session collapses to a line, options kept', t => {
@@ -73,8 +73,8 @@ test('stacked cup only when it fits', t => {
 });
 
 test('warning rows count against the height', t => {
-	t.true(planDashboard(input(120, 38, 1)).showHeadingArt);
-	t.false(planDashboard(input(120, 38, 3)).showHeadingArt);
+	t.true(planDashboard(input(120, 35, 1)).showHeadingArt);
+	t.false(planDashboard(input(120, 35, 3)).showHeadingArt);
 });
 
 test('minimal below the gates', t => {
@@ -96,10 +96,10 @@ test('sessionPanelHeight matches the rendered panel', t => {
 			display: {status: 'held', method: 'gnome-session-inhibit'},
 		},
 	});
-	t.is(sessionPanelHeight(state, NOW, 60), 10);
+	t.is(sessionPanelHeight(state, NOW, 60), 9);
 	t.is(
 		sessionPanelHeight({...state, notes: ['No battery found']}, NOW, 60),
-		11,
+		10,
 	);
 });
 
