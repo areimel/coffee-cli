@@ -25,7 +25,7 @@ const run = async (command: string, args: string[]) =>
 test('systemInhibitArgs is exact', t => {
 	t.deepEqual(systemInhibitArgs('Keeping awake', 99), [
 		'--what=sleep:idle',
-		'--who=coffee-cli',
+		'--who=coffee-term',
 		'--why=Keeping awake',
 		'--mode=block',
 		'tail',
@@ -43,7 +43,7 @@ test('gnomeInhibitArgs is exact and never uses --inhibit-only', t => {
 		'--reason',
 		'Keeping awake',
 		'--app-id',
-		'coffee-cli',
+		'coffee-term',
 		'tail',
 		'--pid=99',
 		'-f',
@@ -230,14 +230,14 @@ const listedLines = async (
 const systemLines = async (reason: string) =>
 	listedLines('systemd-inhibit', ['--list', '--no-pager'], reason);
 const gnomeLines = async () =>
-	listedLines('gnome-session-inhibit', ['-l'], 'coffee-cli');
+	listedLines('gnome-session-inhibit', ['-l'], 'coffee-term');
 const tailLines = async () =>
 	listedLines('pgrep', ['-f', `^tail --pid=${process.pid} `], '');
 
 (isGnomeBox ? test.serial : test.serial.skip)(
 	'real locks appear in the inhibitor listings and vanish on release',
 	async t => {
-		const reason = `coffee-cli-test-${process.pid}-${Date.now()}`;
+		const reason = `coffee-term-test-${process.pid}-${Date.now()}`;
 		const adapter = createLinuxAdapter();
 		const handles: Array<{releaseSync(): void}> = [];
 		t.teardown(() => {

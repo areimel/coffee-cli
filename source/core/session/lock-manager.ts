@@ -30,8 +30,8 @@ export type LockManager = {
 };
 
 const REASONS: Record<LockKind, string> = {
-	system: 'coffee-cli is keeping the machine awake',
-	display: 'coffee-cli is keeping the display on',
+	system: 'coffee-term is keeping the machine awake',
+	display: 'coffee-term is keeping the display on',
 };
 
 export const errorMessage = (error: unknown, fallback: string): string =>

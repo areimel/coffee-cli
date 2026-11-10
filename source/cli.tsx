@@ -137,7 +137,7 @@ const cli = meow(HELP_TEXT, {
 
 const parsed = parseFlags(cli.flags, cli.input);
 if (!parsed.isOk) {
-	fail(2, [...parsed.errors, 'Run coffee-cli --help for usage.']);
+	fail(2, [...parsed.errors, 'Run coffee-term --help for usage.']);
 }
 
 const input = parsed.value;

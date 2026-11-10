@@ -116,7 +116,7 @@ export function installLifecycle({
 		});
 		attempt(restoreTerminal);
 		attempt(() => {
-			writeError?.(`coffee-cli: crashed: ${describeError(error)}\n`);
+			writeError?.(`coffee-term: crashed: ${describeError(error)}\n`);
 		});
 		proc.exit(1);
 	};

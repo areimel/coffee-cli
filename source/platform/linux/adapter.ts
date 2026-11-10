@@ -35,7 +35,7 @@ Arguments for the system lock: blocks sleep and idle, tied to the node pid via `
 export function systemInhibitArgs(reason: string, pid: number): string[] {
 	return [
 		'--what=sleep:idle',
-		'--who=coffee-cli',
+		'--who=coffee-term',
 		`--why=${reason}`,
 		'--mode=block',
 		'tail',
@@ -55,7 +55,7 @@ export function gnomeInhibitArgs(reason: string, pid: number): string[] {
 		'--reason',
 		reason,
 		'--app-id',
-		'coffee-cli',
+		'coffee-term',
 		'tail',
 		`--pid=${pid}`,
 		'-f',

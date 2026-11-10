@@ -88,11 +88,11 @@ test('a missing binary rejects as not installed', async t => {
 		spawnLock({
 			kind: 'system',
 			method: 'systemd-inhibit',
-			command: 'coffee-cli-no-such-binary',
+			command: 'coffee-term-no-such-binary',
 			args: [],
 		}),
 	);
-	t.is(error?.message, 'coffee-cli-no-such-binary is not installed');
+	t.is(error?.message, 'coffee-term-no-such-binary is not installed');
 });
 
 test('onDied fires with the exit code when the child exits by itself', async t => {

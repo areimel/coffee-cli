@@ -242,7 +242,7 @@ test.serial('q stops with reason user and releases the locks', async t => {
 		t.is(app.adapter.held('display'), undefined);
 		t.regex(
 			app.exits[0]!.summary,
-			/^coffee-cli: stayed awake for 00:00:0\d — Stopped by user$/v,
+			/^coffee-term: stayed awake for 00:00:0\d — Stopped by user$/v,
 		);
 		t.is(app.exits[0]!.code, 0);
 	});

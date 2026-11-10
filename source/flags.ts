@@ -8,7 +8,7 @@ import {THEME_NAMES, type ThemeName} from './theme/tokens.js';
 
 export const HELP_TEXT = `
 	Usage
-	  $ coffee-cli [options]
+	  $ coffee-term [options]
 
 	Keeps the machine awake from the moment it starts, with a dashboard to
 	change the session live. Flag values apply to this session only.
@@ -30,10 +30,10 @@ export const HELP_TEXT = `
 	  --config <path>         Use this config file instead of the default
 
 	Examples
-	  $ coffee-cli -d 1h30m
-	  $ coffee-cli -u 5pm --no-display
-	  $ coffee-cli -p 4242 --theme severance
-	  $ coffee-cli -d 2h --plain &
+	  $ coffee-term -d 1h30m
+	  $ coffee-term -u 5pm --no-display
+	  $ coffee-term -p 4242 --theme severance
+	  $ coffee-term -d 2h --plain &
 
 	Exit codes: 0 stopped normally, 1 lock or platform failure, 2 bad flags,
 	128+N killed by signal N.

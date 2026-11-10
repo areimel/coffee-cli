@@ -13,7 +13,7 @@ export type ConfigPathInput = {
 	override?: string;
 };
 
-const APP = 'coffee-cli';
+const APP = 'coffee-term';
 const FILE = 'config.json';
 
 function nonEmpty(value: string | undefined): string | undefined {
@@ -21,7 +21,7 @@ function nonEmpty(value: string | undefined): string | undefined {
 }
 
 /**
-Resolve the config file path: `override` > `COFFEE_CLI_CONFIG` > platform default.
+Resolve the config file path: `override` > `COFFEE_TERM_CONFIG` > platform default.
 */
 export function configPath({
 	platform,
@@ -29,7 +29,7 @@ export function configPath({
 	homedir,
 	override,
 }: ConfigPathInput): string {
-	const explicit = nonEmpty(override) ?? nonEmpty(env['COFFEE_CLI_CONFIG']);
+	const explicit = nonEmpty(override) ?? nonEmpty(env['COFFEE_TERM_CONFIG']);
 	if (explicit !== undefined) {
 		return explicit;
 	}
