@@ -14,7 +14,7 @@ import {
 const dirs: string[] = [];
 
 async function temporary(): Promise<string> {
-	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'coffee-cli-'));
+	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'coffee-term-'));
 	dirs.push(dir);
 	return dir;
 }

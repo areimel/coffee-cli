@@ -99,7 +99,7 @@ test('a crash releases, restores the terminal, reports and exits 1', t => {
 	t.deepEqual(calls, [
 		'releaseAllSync',
 		'restoreTerminal',
-		'error:coffee-cli: crashed: Error: kaboom',
+		'error:coffee-term: crashed: Error: kaboom',
 	]);
 	t.deepEqual(proc.exits, [1]);
 });
@@ -107,7 +107,7 @@ test('a crash releases, restores the terminal, reports and exits 1', t => {
 test('an unhandled rejection is treated as a crash', t => {
 	const {calls, proc} = setup();
 	proc.emit('unhandledRejection', 'nope');
-	t.true(calls.includes('error:coffee-cli: crashed: nope'));
+	t.true(calls.includes('error:coffee-term: crashed: nope'));
 	t.deepEqual(proc.exits, [1]);
 });
 

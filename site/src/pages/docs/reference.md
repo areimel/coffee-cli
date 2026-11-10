@@ -7,7 +7,7 @@ description: Command-line flags, keyboard controls, and exit codes in one place.
 ## Command-line flags
 
 ```text
-coffee-cli [options]
+coffee-term [options]
 ```
 
 | Flag                      | Meaning                                                            |
@@ -64,7 +64,7 @@ In the dashboard, `Ctrl+C` acts as a normal user quit. Outside the dashboard, SI
 Every completed session prints a one-line summary:
 
 ```text
-coffee-cli: stayed awake for <time> — <reason>
+coffee-term: stayed awake for <time> — <reason>
 ```
 
 Reasons include `Stopped by user`, `Timer finished`, `Reached the set time`, `Watched process exited`, `Switched to battery power`, `Battery below the minimum`, `Could not hold the system lock`, and `Interrupted by a signal`.

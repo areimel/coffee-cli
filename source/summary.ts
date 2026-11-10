@@ -8,7 +8,7 @@ import {
 } from './core/session/selectors.js';
 import type {SessionState} from './core/session/types.js';
 
-export const PREFIX = 'coffee-cli:';
+export const PREFIX = 'coffee-term:';
 
 export type ExitOutcome = {
 	/**

@@ -5,14 +5,13 @@ import CodeBlock from "../components/CodeBlock.astro";
 import { href } from "../lib/urls";
 import "../styles/home.css";
 import "../styles/home-responsive.css";
-const installation = `git clone https://github.com/areimel/coffee-cli.git
-cd coffee-cli
-npm install
-npm run dev`;
+const installation = `npm install -g coffee-term
+coffee-term`;
+const tryIt = `npx coffee-term`;
 ---
 
 <SiteLayout
-  title="coffee-cli — Keep your machine awake"
+  title="coffee-term — Keep your machine awake"
   description="A cosy terminal dashboard for keeping your Linux or macOS machine awake. Set a timer, watch a process, and see exactly what's running."
 >
   <div class="container coffee-home">
@@ -65,7 +64,7 @@ npm run dev`;
           </div><h3>A timer, or no timer.</h3><p>
             Stay awake for a duration, until a clock time, or until a process
             exits. Leave it indefinite when you need the breathing room.
-          </p><code>coffee-cli -d 1h30m</code>
+          </p><code>coffee-term -d 1h30m</code>
         </article>
         <article>
           <div class="capability-index">
@@ -91,20 +90,18 @@ npm run dev`;
     <section class="home-install" aria-labelledby="install-heading">
       <div class="install-copy">
         <span class="eyebrow">03 / First brew</span><h2 id="install-heading">
-          Clone. Run.<br />Keep going.
+          Install. Run.<br />Keep going.
         </h2><p>
-          Start straight from source. coffee-cli isn't published to npm yet; all
-          you need is the repository and a recent Node.js.
+          coffee-term is on npm. Install it once and the <code>coffee-term</code
+          > command is on your PATH. All you need is a recent Node.js.
         </p><a href={href("docs/")}
           >Read the installation guide <span aria-hidden="true">↗</span></a
         >
       </div>
       <div class="install-command">
-        <CodeBlock code={installation} label="Install from source" /><p>
-          Want a command on your PATH? Build and link it with <code
-            >npm run build</code
-          > and <code>npm link</code>.
-        </p>
+        <CodeBlock code={installation} label="Install with npm" /><p>
+          Just want a taste? Run it once without installing:
+        </p><CodeBlock code={tryIt} label="Run with npx" />
       </div>
     </section>
     <section class="home-platforms" aria-labelledby="platform-heading">

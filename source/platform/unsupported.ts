@@ -1,19 +1,19 @@
 import type {Adapter} from './types.js';
 
 /**
-User-facing explanation of why this platform cannot run coffee-cli.
+User-facing explanation of why this platform cannot run coffee-term.
 */
 export function unsupportedMessage(
 	platform: NodeJS.Platform,
 	isWsl: boolean,
 ): string {
 	if (isWsl) {
-		return 'coffee-cli does not support WSL. Inhibitors on the Linux side cannot keep Windows awake. Run it on Linux or macOS directly.';
+		return 'coffee-term does not support WSL. Inhibitors on the Linux side cannot keep Windows awake. Run it on Linux or macOS directly.';
 	}
 
 	return platform === 'win32'
-		? 'coffee-cli does not support Windows yet. It runs on Linux and macOS.'
-		: `coffee-cli does not support ${platform}. It runs on Linux and macOS.`;
+		? 'coffee-term does not support Windows yet. It runs on Linux and macOS.'
+		: `coffee-term does not support ${platform}. It runs on Linux and macOS.`;
 }
 
 /**

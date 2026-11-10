@@ -6,12 +6,12 @@ description: Understand system and display locks, platform verification, and com
 
 ## What awake means
 
-coffee-cli holds up to two locks and reports each separately:
+coffee-term holds up to two locks and reports each separately:
 
 - **System lock:** prevents idle sleep.
 - **Display lock:** prevents the screen from blanking or locking.
 
-If the display lock is unavailable, the session is **degraded** while the system remains awake. If the system lock cannot be held, the session stops with an error. Lock helpers are tied to the coffee-cli process so the OS releases the locks when it exits, including a force kill.
+If the display lock is unavailable, the session is **degraded** while the system remains awake. If the system lock cannot be held, the session stops with an error. Lock helpers are tied to the coffee-term process so the OS releases the locks when it exits, including a force kill.
 
 ## Platform support
 
@@ -43,17 +43,17 @@ The dashboard needs both stdin and stdout to be terminals. Pipes, redirects, and
 
 ## Terminal looks wrong after a force kill
 
-`kill -9` prevents coffee-cli from restoring the terminal's alternate screen. Run:
+`kill -9` prevents coffee-term from restoring the terminal's alternate screen. Run:
 
 ```bash
 reset
 ```
 
-The locks are still released because their helper processes are tied to the coffee-cli process.
+The locks are still released because their helper processes are tied to the coffee-term process.
 
 ## Installation and configuration issues
 
-If `coffee-cli` is not found, run `npm run build` and `npm link` from the checkout, or use `npm start` there without linking. The project is not published to npm.
+If `coffee-term` is not found after `npm install -g coffee-term`, the npm global `bin` folder is not on your PATH. Run `npm prefix -g` to find it and add its `bin` folder to your PATH, or use `npx coffee-term` instead.
 
 If dependency engine warnings appear, check `node --version`. The CLI requires Node 22.22.2 or newer; development tooling needs Node 22.22.2+ or 24.15+.
 
