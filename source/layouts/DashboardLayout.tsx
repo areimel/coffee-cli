@@ -120,7 +120,7 @@ export function DashboardLayout({
 		body = (
 			<Box flexDirection="column">
 				{plan.showCup ? (
-					<Box flexShrink={0} justifyContent="center">
+					<Box flexShrink={0} flexDirection="column" alignItems="center">
 						{cup}
 					</Box>
 				) : null}

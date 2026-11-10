@@ -5,12 +5,18 @@ export type HelpOverlayProps = {
 	readonly bindings: readonly KeyHint[];
 	readonly isActive: boolean;
 	readonly onClose: () => void;
+	readonly flexGrow?: number;
 };
 
 /**
 Key reference. Any of Escape, `?`, Enter or `q` closes it.
 */
-export function HelpOverlay({bindings, isActive, onClose}: HelpOverlayProps) {
+export function HelpOverlay({
+	bindings,
+	isActive,
+	onClose,
+	flexGrow,
+}: HelpOverlayProps) {
 	useInput(
 		(input, key) => {
 			if (input === '?' || input === 'q' || key.escape || key.return) {
@@ -22,7 +28,11 @@ export function HelpOverlay({bindings, isActive, onClose}: HelpOverlayProps) {
 
 	const keyWidth = Math.max(0, ...bindings.map(({keys}) => keys.length));
 	return (
-		<Panel title="Help" isFocused={isActive}>
+		<Panel
+			title="Help"
+			isFocused={isActive}
+			{...(flexGrow === undefined ? {} : {flexGrow})}
+		>
 			{bindings.map(({keys, label}) => (
 				<StatRow key={keys} label={keys} value={label} labelWidth={keyWidth} />
 			))}

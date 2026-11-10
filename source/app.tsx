@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import type {ConfigTracker} from './config/merge.js';
 import {isActivePhase, isTerminalPhase} from './core/session/selectors.js';
 import type {SessionController} from './core/session/types.js';
-import {AnimatedCup} from './features/cup/AnimatedCup.js';
+import {CupPanel} from './features/cup/CupPanel.js';
 import {Heading} from './features/heading/Heading.js';
 import {HelpOverlay} from './features/help/HelpOverlay.js';
 import {OptionsEditor} from './features/options/OptionsEditor.js';
@@ -137,6 +137,7 @@ function Dashboard({
 		overlay,
 		warnings,
 	});
+	const besideGrow = plan.stats === 'beside' ? {flexGrow: 1} : {};
 	const closeOverlay = () => {
 		setOverlay(undefined);
 	};
@@ -145,6 +146,7 @@ function Dashboard({
 		overlay === 'themes' ? (
 			<ThemePicker
 				isActive
+				flexGrow={1}
 				current={settings.shownTheme}
 				onPreview={settings.previewTheme}
 				onSelect={name => {
@@ -159,6 +161,7 @@ function Dashboard({
 		) : overlay === 'help' ? (
 			<HelpOverlay
 				isActive
+				flexGrow={1}
 				bindings={ALL_KEY_BINDINGS}
 				onClose={closeOverlay}
 			/>
@@ -170,24 +173,26 @@ function Dashboard({
 			plan={plan}
 			heading={<Heading isCompact={!plan.showHeadingArt} />}
 			cup={
-				<AnimatedCup
+				<CupPanel
 					isAnimated={settings.isAnimated}
 					isHot={isActivePhase(state.phase)}
+					showCredits={plan.showCredits}
+					flexGrow={1}
 				/>
 			}
 			session={
-				<Panel title="Session">
+				<Panel title="Session" {...besideGrow}>
 					<SessionStatus state={state} now={now} />
 				</Panel>
 			}
 			statusLine={<StatusLine state={state} now={now} />}
 			stats={
-				<Panel title="Stats">
+				<Panel title="Stats" {...besideGrow}>
 					<StatsPanel lines={trimStats(lines, plan.statsLineCount)} />
 				</Panel>
 			}
 			options={
-				<Panel isFocused={overlay === undefined} title="Options">
+				<Panel flexGrow={1} isFocused={overlay === undefined} title="Options">
 					<OptionsEditor
 						options={state.options}
 						capabilities={capabilities}

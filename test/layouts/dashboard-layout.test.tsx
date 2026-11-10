@@ -5,6 +5,7 @@ import {
 	planDashboard,
 	type DashboardPlan,
 } from '../../source/layouts/dashboard-plan.js';
+import {Panel} from '../../source/ui/kit/index.js';
 import {computeLayout} from '../../source/ui/hooks/use-layout.js';
 import {renderSized} from '../helpers/render-sized.js';
 
@@ -39,11 +40,27 @@ function draw(
 			layout={layout}
 			plan={plan}
 			heading={<Text>HEAD</Text>}
-			cup={<Block label="cup" rows={3} />}
-			session={<Block label="ses" rows={3} />}
+			cup={
+				<Panel title="cup" width={20} flexGrow={1}>
+					<Block label="cup" rows={3} />
+				</Panel>
+			}
+			session={
+				<Panel title="ses" {...(patch.stats === 'beside' ? {flexGrow: 1} : {})}>
+					<Block label="ses" rows={3} />
+				</Panel>
+			}
 			statusLine={<Text>status-line</Text>}
-			stats={<Block label="sta" rows={2} />}
-			options={<Block label="opt" rows={2} />}
+			stats={
+				<Panel title="sta" {...(patch.stats === 'beside' ? {flexGrow: 1} : {})}>
+					<Block label="sta" rows={2} />
+				</Panel>
+			}
+			options={
+				<Panel title="opt" flexGrow={1}>
+					<Block label="opt" rows={2} />
+				</Panel>
+			}
 			footer={<Text>hints</Text>}
 		/>,
 		columns,
@@ -67,6 +84,16 @@ test('full: cup column left of the stacked panels', t => {
 	t.is(rowOf(lines, 'HEAD'), 0);
 });
 
+test('full: cup frame and the last panel end on the same row', t => {
+	const {lines} = draw(120, 40, {stats: 'stack'});
+	const bottoms = lines
+		.map((line, index) => (line.includes('╰') ? index : -1))
+		.filter(index => index >= 0);
+	const cupBottom = lines.findIndex(line => /╰─+╯\s+╰─+╯/v.test(line));
+	t.is(cupBottom, bottoms.at(-1) ?? -1);
+	t.true(cupBottom > rowOf(lines, 'opt1'));
+});
+
 test('stacked: one column, cup above the panels', t => {
 	const {lines, plan} = draw(70, 40, {stats: 'stack'});
 	t.is(plan.mode, 'stacked');
@@ -83,6 +110,8 @@ test('beside: session and stats share rows', t => {
 		mode: 'stacked',
 	});
 	t.is(rowOf(lines, 'ses0'), rowOf(lines, 'sta0'));
+	t.true(lines.some(line => /╰─+╯╰─+╯/v.test(line)));
+	t.is(lines.filter(line => line.includes('╭─ ')).length, 2);
 });
 
 test('minimal: status line and hints only', t => {

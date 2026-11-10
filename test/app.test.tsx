@@ -22,7 +22,7 @@ The Options panel is drawn whole: title, last field and its bottom border.
 */
 function assertOptionsWhole(t: ExecutionContext, frame: string) {
 	t.regex(frame, /❯ Options/v);
-	t.regex(frame, /Wait PID[^\n]*\n[^\n]*╰─/v);
+	t.regex(frame, /Wait PID[^\n]*\n(?:[^\n]*│\s+│[^\n]*\n)*[^\n]*╰─/v);
 }
 
 const sizes: Array<{
@@ -273,3 +273,28 @@ test.serial('lock failure exits with code 1 and the message', async t => {
 		app.dispose();
 	}
 });
+
+test.serial(
+	'120x40: framed cup with credits, panels side by side, bottoms aligned',
+	async t => {
+		await withApp(
+			async app => {
+				const lines = app.plainFrame().split('\n');
+				const text = lines.join('\n');
+				t.true(text.includes('Alec Reimel'));
+				t.true(text.includes('github.com/areimel'));
+				t.true(
+					lines.some(
+						line => line.includes('─ Session ─') && line.includes('─ Stats ─'),
+					),
+				);
+				// Cup frame and Options frame close on the same (last) bottom row.
+				const sharedBottom = lines.findIndex(line => /╰─+╯\s+╰─+╯/v.test(line));
+				t.true(sharedBottom > 0);
+				const lastBottom = lines.findLastIndex(line => line.includes('╰─'));
+				t.is(sharedBottom, lastBottom);
+			},
+			{columns: 120, rows: 40},
+		);
+	},
+);
