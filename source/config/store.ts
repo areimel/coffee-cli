@@ -142,7 +142,7 @@ export type DebouncedSaver = {
 	*/
 	flush(): Promise<void>;
 	/**
-	Write any pending config synchronously (exit paths).
+	Write any pending config synchronously (exit paths), including one whose async write has not finished.
 	*/
 	flushSync(): void;
 };
@@ -164,6 +164,8 @@ export function createDebouncedSaver(
 	let timer: unknown;
 	let isTimerSet = false;
 	let inFlight: Promise<void> = Promise.resolve();
+	// The newest config handed to an async write that has not finished yet.
+	let unsaved: Config | undefined;
 
 	const cancelTimer = () => {
 		if (!isTimerSet) {
@@ -188,8 +190,14 @@ export function createDebouncedSaver(
 			return inFlight;
 		}
 
+		unsaved = config;
 		inFlight = inFlight.then(async () => {
-			report(await saveConfig(file, config));
+			const result = await saveConfig(file, config);
+			if (unsaved === config) {
+				unsaved = undefined;
+			}
+
+			report(result);
 		});
 		return inFlight;
 	};
@@ -221,8 +229,10 @@ export function createDebouncedSaver(
 			}
 
 			cancelTimer();
-			const config = pending;
+			// An async write may be cut short by the exit, so redo it synchronously.
+			const config = pending ?? unsaved;
 			pending = undefined;
+			unsaved = undefined;
 			if (config !== undefined) {
 				report(saveConfigSync(file, config));
 			}

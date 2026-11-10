@@ -66,13 +66,28 @@ test('changing the duration moves endsAt; other changes keep it', async t => {
 	t.is(h.supervisor.getState().endsAt, FAKE_CLOCK_START + 360_000);
 
 	await h.clock.tickAsync(1000);
-	await h.supervisor.updateOptions({end: {mode: 'duration', ms: 300_000}});
 	await h.supervisor.updateOptions({acOnly: true, minBattery: 10});
 	t.is(h.supervisor.getState().endsAt, FAKE_CLOCK_START + 360_000);
+
+	await h.supervisor.updateOptions({end: {mode: 'until', clock: '23:59'}});
+	const untilEndsAt = h.supervisor.getState().endsAt;
+	await h.clock.tickAsync(1000);
+	await h.supervisor.updateOptions({end: {mode: 'until', clock: '23:59'}});
+	t.is(h.supervisor.getState().endsAt, untilEndsAt, 'same clock keeps endsAt');
 
 	await h.supervisor.updateOptions({end: {mode: 'indefinite'}});
 	t.is(h.supervisor.getState().endsAt, undefined);
 	t.is(h.acquires('system'), 1, 'system lock never touched');
+});
+
+test('re-entering the same duration restarts the countdown', async t => {
+	const h = setup({end: {mode: 'duration', ms: 600_000}});
+	t.teardown(h.supervisor.dispose);
+	await h.supervisor.start();
+
+	await h.clock.tickAsync(120_000);
+	await h.supervisor.updateOptions({end: {mode: 'duration', ms: 600_000}});
+	t.is(h.supervisor.getState().endsAt, FAKE_CLOCK_START + 720_000);
 });
 
 test('an option change that meets a condition stops immediately', async t => {

@@ -1,6 +1,10 @@
 import {formatClock} from '../../core/clock-time.js';
 import {formatElapsed, formatRemaining} from '../../core/format.js';
-import {describeStopReason, phaseLabel} from '../../core/session/selectors.js';
+import {
+	describeStopReason,
+	phaseLabel,
+	sessionElapsedMs,
+} from '../../core/session/selectors.js';
 import type {
 	LockStatus,
 	SessionPhase,
@@ -108,10 +112,6 @@ export function describeEnds(endsAt: number | undefined, now: number): string {
 Everything `SessionStatus` shows, as plain data.
 */
 export function buildStatus(state: SessionState, now: number): StatusModel {
-	const elapsedMs =
-		state.startedAt === undefined
-			? 0
-			: (state.stoppedAt ?? now) - state.startedAt;
 	const stopText =
 		state.stopReason === undefined
 			? undefined
@@ -122,7 +122,7 @@ export function buildStatus(state: SessionState, now: number): StatusModel {
 			state: phaseState(state.phase, state.stopReason),
 			label: phaseLabel(state.phase),
 		},
-		elapsed: formatElapsed(elapsedMs),
+		elapsed: formatElapsed(sessionElapsedMs(state, now)),
 		ends: describeEnds(state.endsAt, now),
 		locks: LOCK_KINDS.map(kind => lockBadge(kind, state.locks[kind])),
 		pid:

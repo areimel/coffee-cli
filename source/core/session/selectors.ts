@@ -1,4 +1,4 @@
-import type {SessionPhase, StopReason} from './types.js';
+import type {SessionPhase, SessionState, StopReason} from './types.js';
 
 /**
 Phases in which the session is trying to hold, or holds, its locks.
@@ -42,3 +42,14 @@ const PHASE_LABELS: Record<SessionPhase, string> = {
 Upper-case status label for a phase.
 */
 export const phaseLabel = (phase: SessionPhase): string => PHASE_LABELS[phase];
+
+/**
+How long the session has run, in ms: start to stop, or to `now` while it runs; 0 before START.
+*/
+export const sessionElapsedMs = (
+	state: Pick<SessionState, 'startedAt' | 'stoppedAt'>,
+	now: number,
+): number =>
+	state.startedAt === undefined
+		? 0
+		: Math.max(0, (state.stoppedAt ?? now) - state.startedAt);

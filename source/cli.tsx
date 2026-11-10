@@ -4,7 +4,12 @@ import {render} from 'ink';
 import meow from 'meow';
 import App from './app.js';
 import {bootstrap, type Ready} from './bootstrap.js';
-import {HELP_TEXT, MEOW_FLAGS, parseFlags} from './flags.js';
+import {
+	HELP_TEXT,
+	MEOW_FLAGS,
+	parseFlags,
+	shouldRunDashboard,
+} from './flags.js';
 import {installLifecycle} from './lifecycle.js';
 import {runPlain} from './plain-mode.js';
 import {isPidAlive} from './platform/process-alive.js';
@@ -145,7 +150,10 @@ if (session.kind === 'unsupported') {
 	fail(1, [session.message]);
 }
 
-const isDashboard = process.stdout.isTTY && !input.isPlain;
+const isDashboard = shouldRunDashboard(input, {
+	stdin: process.stdin.isTTY,
+	stdout: process.stdout.isTTY,
+});
 const code = isDashboard
 	? await runDashboard(session)
 	: await runPlainMode(session);

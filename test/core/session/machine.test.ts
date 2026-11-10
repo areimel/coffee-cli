@@ -283,6 +283,20 @@ test('display toggled on makes it pending and phase starting', t => {
 	t.is(reduce(s, dispOk).phase, 'awake');
 });
 
+test('display toggled on before START stays released until START', t => {
+	const before = reduce(createInitialState(options({display: false})), {
+		type: 'OPTIONS_CHANGED',
+		options: options({display: true}),
+		endsAt: undefined,
+	});
+	t.is(before.phase, 'starting');
+	t.is(before.locks.display.status, 'released');
+	t.deepEqual(reduce(before, START).locks.display, {
+		status: 'pending',
+		attempt: 0,
+	});
+});
+
 test('display toggled on while paused stays released and paused', t => {
 	const paused = run(awake({display: false}), {type: 'PAUSE', at: 1});
 	const s = reduce(paused, {

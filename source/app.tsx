@@ -14,7 +14,7 @@ import {ThemePicker} from './features/themes/ThemePicker.js';
 import {DashboardLayout} from './layouts/DashboardLayout.js';
 import {Footer, type Overlay} from './layouts/Footer.js';
 import {OPTION_LABEL_WIDTH, trimStats} from './layouts/region-heights.js';
-import {planForState} from './layouts/plan-for-state.js';
+import {planWithWarnings} from './layouts/plan-for-state.js';
 import type {SystemStats} from './platform/system-stats.js';
 import type {Capabilities} from './platform/types.js';
 import {summarize, type ExitOutcome} from './summary.js';
@@ -128,7 +128,7 @@ function Dashboard({
 
 	const lines = buildStats({system: stats, battery: state.battery, state, now});
 	const context = {capabilities, battery: state.battery, isPidAlive};
-	const plan = planForState({
+	const {plan, warnings: shownWarnings} = planWithWarnings({
 		layout,
 		state,
 		now,
@@ -210,7 +210,7 @@ function Dashboard({
 					overlay={overlay}
 					isEditing={isEditing}
 					isPaused={state.phase === 'paused'}
-					warnings={warnings}
+					warnings={shownWarnings}
 				/>
 			}
 			{...(theme.colors.bg === undefined

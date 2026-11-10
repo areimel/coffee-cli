@@ -5,6 +5,7 @@ import {
 	formatUptime,
 	formatWatts,
 } from '../../core/format.js';
+import {sessionElapsedMs} from '../../core/session/selectors.js';
 import type {SessionState} from '../../core/session/types.js';
 import type {SystemStats} from '../../platform/system-stats.js';
 import type {BatteryInfo, BatteryStatus} from '../../platform/types.js';
@@ -102,13 +103,9 @@ export function buildStats({
 	state,
 	now,
 }: StatsInput): StatLine[] {
-	const elapsed =
-		state.startedAt === undefined
-			? 0
-			: (state.stoppedAt ?? now) - state.startedAt;
 	return [
 		line('uptime', 'Uptime', formatUptime(system.uptimeSeconds)),
-		line('session', 'Session', formatElapsed(elapsed)),
+		line('session', 'Session', formatElapsed(sessionElapsedMs(state, now))),
 		...(battery === undefined
 			? [line('battery', 'Battery', 'none detected')]
 			: batteryLines(battery)),

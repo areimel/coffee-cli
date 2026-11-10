@@ -11,7 +11,7 @@ import type {
 import {createLockManager, describeDeath} from './lock-manager.js';
 import {isActivePhase} from './selectors.js';
 import type {SessionStore} from './session-store.js';
-import {RETRY_DELAYS_MS} from './supervisor-helpers.js';
+import {RETRY_DELAYS_MS, STABLE_HOLD_MS} from './supervisor-helpers.js';
 import type {SupervisorDeps, TimerHandle} from './types.js';
 
 export type LockCoordinatorContext = {
@@ -41,6 +41,8 @@ export function createLockCoordinator(
 ): LockCoordinator {
 	const {deps, store, isWanted} = context;
 	const retryTimers = new Map<LockKind, TimerHandle>();
+	// When a retry last recovered each kind, and at which attempt.
+	const recoveries = new Map<LockKind, {at: number; attempt: number}>();
 	const locks = createLockManager(deps.adapter, onDied);
 
 	function cancelRetry(kind: LockKind): void {
@@ -99,6 +101,12 @@ export function createLockCoordinator(
 				return;
 			}
 
+			if (attempt > 0) {
+				recoveries.set(kind, {at: deps.now(), attempt});
+			} else {
+				recoveries.delete(kind);
+			}
+
 			const {method} = result.handle;
 			store.dispatch({type: 'LOCK_OK', kind, method});
 		}
@@ -110,8 +118,18 @@ export function createLockCoordinator(
 		}
 
 		const note = describeDeath(kind, info);
-		store.dispatch({type: 'LOCK_DIED', kind, note, attempt: 1});
-		scheduleRetry(kind, 1);
+		const recovery = recoveries.get(kind);
+		recoveries.delete(kind);
+		const isFlapping =
+			recovery !== undefined && deps.now() - recovery.at < STABLE_HOLD_MS;
+		const attempt = isFlapping ? recovery.attempt + 1 : 1;
+		if (attempt > RETRY_DELAYS_MS.length) {
+			store.dispatch({type: 'LOCK_FAILED', kind, note, at: deps.now()});
+			return;
+		}
+
+		store.dispatch({type: 'LOCK_DIED', kind, note, attempt});
+		scheduleRetry(kind, attempt);
 	}
 
 	async function syncDisplay(): Promise<void> {

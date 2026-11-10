@@ -106,7 +106,8 @@ const changeOptions = (
 	endsAt: number | undefined,
 ): SessionState => {
 	let {display} = state.locks;
-	if (isActivePhase(state.phase)) {
+	// Before START nothing is requested yet; START marks what to acquire.
+	if (isActivePhase(state.phase) && state.startedAt !== undefined) {
 		if (!options.display && display.status !== 'held') {
 			display = RELEASED;
 		} else if (

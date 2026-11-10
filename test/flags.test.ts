@@ -4,6 +4,7 @@ import {
 	HELP_TEXT,
 	MEOW_FLAGS,
 	parseFlags,
+	shouldRunDashboard,
 	type FlagsResult,
 } from '../source/flags.js';
 
@@ -132,5 +133,17 @@ test('reports every problem at once', t => {
 	t.is(
 		errors(['--theme', 'nope', '--pid', 'x', '--min-battery', '0']).length,
 		3,
+	);
+});
+
+test('the dashboard runs only with a TTY on stdin and stdout and no --plain', t => {
+	const both = {stdin: true, stdout: true};
+	t.true(shouldRunDashboard({isPlain: false}, both));
+	t.false(shouldRunDashboard({isPlain: true}, both));
+	t.false(
+		shouldRunDashboard({isPlain: false}, {stdin: undefined, stdout: true}),
+	);
+	t.false(
+		shouldRunDashboard({isPlain: false}, {stdin: true, stdout: undefined}),
 	);
 });

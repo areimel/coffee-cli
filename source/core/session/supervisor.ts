@@ -204,8 +204,11 @@ export const createSupervisor: CreateSupervisor = (initialOptions, deps) => {
 			}
 
 			const options = {...state.options, ...patch};
+			// Entering a duration (even the same one) restarts the countdown from now.
 			const isEndChanged =
-				patch.end !== undefined && !isSameEnd(patch.end, state.options.end);
+				patch.end !== undefined &&
+				(patch.end.mode === 'duration' ||
+					!isSameEnd(patch.end, state.options.end));
 			const endsAt =
 				hasStarted && isEndChanged
 					? computeEndsAt(options.end, deps.now())

@@ -56,3 +56,21 @@ export function planForState({
 		},
 	});
 }
+
+/**
+The plan plus the warnings to show. When even the last-resort plan overflows, the footer's warning lines go first: they are also printed to stderr on exit, while a clipped Options panel hides controls.
+*/
+export function planWithWarnings(parameters: PlanParameters): {
+	plan: DashboardPlan;
+	warnings: readonly string[];
+} {
+	const plan = planForState(parameters);
+	if (
+		plan.height <= parameters.layout.rows ||
+		parameters.warnings.length === 0
+	) {
+		return {plan, warnings: parameters.warnings};
+	}
+
+	return {plan: planForState({...parameters, warnings: []}), warnings: []};
+}

@@ -156,6 +156,17 @@ test('flushSync writes synchronously; nothing pending is a no-op', async t => {
 	t.is((JSON.parse(readFileSync(file, 'utf8')) as Config).theme, 'severance');
 });
 
+test('flushSync rewrites a config whose async write has not finished', async t => {
+	const dir = await temporary();
+	const file = path.join(dir, 'config.json');
+	const saver = createDebouncedSaver({path: file, ...createFakeClock()});
+	saver.schedule(custom);
+	const flushing = saver.flush(); // Started, not finished: the exit cuts it short.
+	saver.flushSync();
+	t.is((JSON.parse(readFileSync(file, 'utf8')) as Config).theme, 'severance');
+	await flushing;
+});
+
 test('read-only saver never writes', async t => {
 	const dir = await temporary();
 	const file = path.join(dir, 'config.json');

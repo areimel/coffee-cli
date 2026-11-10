@@ -121,6 +121,28 @@ test.serial('fits with a timer, a watched pid and a warning', async t => {
 	}
 });
 
+test.serial(
+	'at 12 rows a timer plus a warning drops the warning, not the Options border',
+	async t => {
+		const app = await startApp({
+			columns: 60,
+			rows: 12,
+			options: {end: {mode: 'duration', ms: 3_600_000}},
+			warnings: ['Config field "theme" is invalid; using the default.'],
+		});
+		try {
+			await app.waitForPhase('awake');
+			const frame = app.plainFrame();
+			assertFits(t, frame, 60, 12);
+			assertOptionsWhole(t, frame);
+			t.regex(frame, /q quit/v);
+			t.notRegex(frame, /! Config field/v);
+		} finally {
+			app.dispose();
+		}
+	},
+);
+
 async function withApp(
 	run: (app: AppHarness) => Promise<void>,
 	options: Parameters<typeof startApp>[0] = {},

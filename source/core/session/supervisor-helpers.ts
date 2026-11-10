@@ -9,6 +9,8 @@ export const TICK_MS = 1000;
 export const BATTERY_POLL_MS = 15_000;
 // Gap before retry 1, 2 and 3 after a held lock's child died (each measured from the previous failure).
 export const RETRY_DELAYS_MS = [500, 2000, 5000] as const;
+// A lock recovered by a retry must stay held this long before a later death gets a fresh retry budget; dying sooner continues the same budget, so a flapping lock ends as failed instead of retrying forever.
+export const STABLE_HOLD_MS = 60_000;
 
 /**
 Absolute end for `end` applied at `now`. A malformed `until` clock (validated upstream, so not expected) degrades to no end rather than throwing.

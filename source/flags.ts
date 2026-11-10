@@ -230,3 +230,13 @@ export function parseFlags(
 		},
 	};
 }
+
+/**
+The dashboard needs a terminal on both ends: Ink draws to stdout and reads keys from stdin in raw mode (which throws on a pipe or `/dev/null`). Anything else runs plain mode.
+*/
+export function shouldRunDashboard(
+	input: Pick<StartupInput, 'isPlain'>,
+	tty: {stdin: boolean | undefined; stdout: boolean | undefined},
+): boolean {
+	return !input.isPlain && tty.stdin === true && tty.stdout === true;
+}

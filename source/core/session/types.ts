@@ -193,8 +193,8 @@ export type SessionController = {
 	pause(): Promise<void>;
 	// Re-acquire locks from `paused`. No-op otherwise.
 	resume(): Promise<void>;
-	// Release all locks, then enter `stopped` with `reason`. Idempotent.
-	stop(reason: StopReason): Promise<void>;
+	// Release all locks, then enter `stopped` with `reason` (and `message`, shown with the reason). Idempotent: the first call's reason wins.
+	stop(reason: StopReason, message?: string): Promise<void>;
 	// Live options change. Timing/battery/PID only swap predicates; `display` acquires or releases the display lock (new before old).
 	updateOptions(patch: Partial<SessionOptions>): Promise<void>;
 	// Synchronously release every held lock (exit/signal/crash path). Idempotent; never throws.

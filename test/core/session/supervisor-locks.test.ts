@@ -1,4 +1,5 @@
 import test from 'ava';
+import {STABLE_HOLD_MS} from '../../../source/core/session/supervisor-helpers.js';
 import {FAKE_CLOCK_START} from '../../helpers/fake-clock.js';
 import {setup} from './supervisor-fixture.js';
 
@@ -87,7 +88,36 @@ test('a display lock that keeps dying ends degraded with the failure noted', asy
 	t.is(h.heldCount('system'), 1);
 });
 
-test('a repeated death after recovery gets a fresh retry budget', async t => {
+test('a lock that keeps dying soon after each recovery ends failed, not retried forever', async t => {
+	const h = setup();
+	t.teardown(h.supervisor.dispose);
+	await h.supervisor.start();
+
+	const waits = [500, 2000, 5000];
+	for (const [index, wait] of waits.entries()) {
+		h.adapter.held('display')?.die();
+		t.like(h.supervisor.getState().locks.display, {
+			status: 'pending',
+			attempt: index + 1,
+		});
+		// eslint-disable-next-line no-await-in-loop
+		await h.clock.tickAsync(wait);
+		t.is(h.supervisor.getState().phase, 'awake', `recovered by retry ${index}`);
+		// eslint-disable-next-line no-await-in-loop
+		await h.clock.tickAsync(10_000);
+	}
+
+	h.adapter.held('display')?.die();
+	await h.clock.tickAsync(60_000);
+	const state = h.supervisor.getState();
+	t.is(state.phase, 'degraded');
+	t.like(state.locks.display, {status: 'failed'});
+	t.is(h.acquires('display'), 4, 'initial + 3 retries');
+	t.is(h.heldCount('display'), 0);
+	t.is(h.heldCount('system'), 1);
+});
+
+test('a repeated death after a stable recovery gets a fresh retry budget', async t => {
 	const h = setup({display: false});
 	t.teardown(h.supervisor.dispose);
 	await h.supervisor.start();
@@ -95,6 +125,7 @@ test('a repeated death after recovery gets a fresh retry budget', async t => {
 	h.adapter.held('system')?.die();
 	await h.clock.tickAsync(500);
 	t.is(h.supervisor.getState().phase, 'awake');
+	await h.clock.tickAsync(STABLE_HOLD_MS);
 	h.adapter.held('system')?.die();
 	t.like(h.supervisor.getState().locks.system, {status: 'pending', attempt: 1});
 	await h.clock.tickAsync(500);
