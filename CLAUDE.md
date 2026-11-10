@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-Guidance for Claude Code and every subagent working in this repo. Read it in full before writing code. The design spec at `docs/superpowers/specs/2026-11-09-coffee-cli-design.md` is the source of truth; this file is the working summary.
+Guidance for Claude Code and every subagent working in this repo. Read it in full before writing code. The design spec at `docs/superpowers/specs/2026-11-09-coffee-cli-design.md` is the original design; where it disagrees with the source (e.g. breakpoints), the source and this file win.
 
 ## Overview
 
-`coffee-cli` is a rich terminal (Ink 8 / React 19) equivalent of macOS `caffeinate`: it keeps the machine awake from launch, shows an ANSI Shadow `COFFEE` heading, a coffee cup with animated steam, live machine stats, and lets the user change session options (duration / until / indefinite, display lock, AC-only, minimum battery, wait on PID) and themes (amber, green, Severance) in-app. Linux and macOS only. **Current state:** only the toolchain upgrade has landed (`source/cli.tsx` and `source/app.tsx` are still the scaffold greeting); the work packages build everything below.
+`coffee-cli` is a rich terminal (Ink 8 / React 19) equivalent of macOS `caffeinate`: it keeps the machine awake from launch, shows an ANSI Shadow `COFFEE` heading, a coffee cup with animated steam, live machine stats, and lets the user change session options (duration / until / indefinite, display lock, AC-only, minimum battery, wait on PID) and themes (amber, green, Severance) in-app. Linux and macOS only. **Current state:** v1 is built and `npm test` is green. Verified for real on Ubuntu GNOME Wayland (system and display locks, release on every exit path). The macOS adapter is covered by unit tests only (argv and `pmset` fixtures) and has never run on a Mac; the X11 `xset` path is unit-tested only; non-GNOME Wayland has no display lock.
 
 ## Commands
 
@@ -25,34 +25,51 @@ Plain `npx ava` does NOT work: tsx needs `TSX_TSCONFIG_PATH=tsconfig.test.json`,
 
 ## Architecture
 
-The layout (planned; created by the work packages):
+Real layout (`find source test scripts -type f` to list every file):
 
-| Path                      | Single responsibility                                                                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `source/cli.tsx`          | meow flags, platform gate, TTY vs plain, `render()`, exit code                                                                                 |
-| `source/app.tsx`          | providers + `DashboardLayout`                                                                                                                  |
-| `source/plain-mode.ts`    | non-TTY runner: one log line per state change                                                                                                  |
-| `source/lifecycle.ts`     | `exit` / SIGINT / SIGTERM / SIGHUP / crash hooks → `supervisor.releaseAllSync()`                                                               |
-| `source/core/`            | pure logic: `duration.ts`, `clock-time.ts`, `format.ts`                                                                                        |
-| `source/core/session/`    | `types.ts`, `machine.ts` (pure reducer), `conditions.ts` (pure), `supervisor.ts`                                                               |
-| `source/config/`          | `schema.ts`, `merge.ts`, `paths.ts` (pure); `store.ts` (the only fs access here)                                                               |
-| `source/platform/`        | all OS access: `types.ts`, `index.ts`, `spawn-lock.ts`, `process-alive.ts`, `unsupported.ts`                                                   |
-| `source/platform/linux/`  | `detect.ts`, `adapter.ts`, `display-xset.ts`, `battery-read.ts`, `battery-parse.ts`                                                            |
-| `source/platform/darwin/` | `adapter.ts`, `battery-read.ts`, `pmset-parse.ts`                                                                                              |
-| `source/theme/`           | `tokens.ts` (contract), `palettes.ts`, `resolve.ts` (colour level), `context.tsx`                                                              |
-| `source/ui/kit/`          | themed primitives: `T`, `Panel`, `SelectList`, `Toggle`, `TextField`, `NumberField`, `FieldRow`, `KeyHints`, `StatRow`, `ProgressBar`, `Badge` |
-| `source/ui/hooks/`        | `use-session`, `use-stats`, `use-layout`, `use-keymap`                                                                                         |
-| `source/features/*/`      | one screen region each: `heading`, `cup`, `status`, `stats`, `options`, `themes`, `help`                                                       |
-| `source/layouts/`         | `DashboardLayout.tsx`: arranges regions per breakpoint                                                                                         |
-| `scripts/`                | `generate-heading.ts` (figlet → `features/heading/heading-art.ts`, generated, committed)                                                       |
-| `test/`                   | mirrors `source/`; `helpers/`, `fixtures/`                                                                                                     |
+| Path                      | Single responsibility                                                                                                                                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source/cli.tsx`          | meow flags, unknown/invalid flag errors (exit 2), TTY vs plain, `render()`, exit code                                                                                                                                                                    |
+| `source/flags.ts`         | flag table, `HELP_TEXT`, pure `parseFlags` into validated startup input                                                                                                                                                                                  |
+| `source/bootstrap.ts`     | startup composition: config load, layering, platform adapter, supervisor, saver                                                                                                                                                                          |
+| `source/app.tsx`          | providers + `DashboardLayout`; wires keymap, settings and exit                                                                                                                                                                                           |
+| `source/use-settings.ts`  | in-app theme / animation / session settings and their debounced save                                                                                                                                                                                     |
+| `source/summary.ts`       | exit summary line (`coffee-cli: stayed awake for ... — reason`) and exit code, shared by dashboard and plain mode                                                                                                                                        |
+| `source/plain-mode.ts`    | non-TTY runner: one log line per state change                                                                                                                                                                                                            |
+| `source/lifecycle.ts`     | `exit` / SIGINT / SIGTERM / SIGHUP / crash hooks, `supervisor.releaseAllSync()`, terminal restore                                                                                                                                                        |
+| `source/core/`            | pure logic: `duration.ts`, `clock-time.ts`, `format.ts`                                                                                                                                                                                                  |
+| `source/core/session/`    | `types.ts` (contract), `machine.ts` (reducer), `conditions.ts`, `selectors.ts` (labels, phase checks), `supervisor.ts` plus its parts                                                                                                                    |
+|                           | `session-store.ts` (state + listeners), `lock-coordinator.ts` (acquire, retries, display sync), `lock-manager.ts` (handle bookkeeping), `session-monitor.ts` (tick, PID, battery poll), `supervisor-helpers.ts` (pure helpers, tick and retry constants) |
+| `source/config/`          | `schema.ts` (types, defaults), `validate.ts`, `merge.ts` (layering, tracker), `paths.ts` (pure); `store.ts` (the only fs access here)                                                                                                                    |
+| `source/platform/`        | all OS access: `types.ts` (contract), `index.ts` (pick adapter), `spawn-lock.ts`, `process-alive.ts`, `system-stats.ts` (uptime, load, host), `battery-util.ts`, `unsupported.ts`                                                                        |
+| `source/platform/linux/`  | `detect.ts`, `adapter.ts`, `display-xset.ts`, `battery-read.ts`, `battery-parse.ts`                                                                                                                                                                      |
+| `source/platform/darwin/` | `adapter.ts`, `battery-read.ts`, `pmset-parse.ts`                                                                                                                                                                                                        |
+| `source/theme/`           | `tokens.ts` (contract), `palettes.ts`, `resolve.ts`, `color-level.ts` (NO_COLOR / FORCE_COLOR / TTY), `context.tsx`                                                                                                                                      |
+| `source/ui/kit/`          | themed primitives (see `index.ts`): `T` + `toneProps`, `Panel`, `SelectList`, `Toggle`, `TextField`, `NumberField`, `FieldRow`, `KeyHints`, `StatRow`, `ProgressBar`, `Badge`, `ValueBox`, `FOCUS_MARKER`                                                |
+| `source/ui/hooks/`        | `use-session`, `use-stats`, `use-layout` (breakpoint gates), `use-keymap` (the single global key table)                                                                                                                                                  |
+| `source/features/*/`      | one screen region each: `heading`, `cup`, `status` (`status-model.ts`, `SessionStatus`, `StatusLine`), `stats`, `options` (`option-fields.ts`, `option-field-types.ts`, `use-options-editor.ts`, `OptionsEditor`), `themes`, `help`                      |
+| `source/layouts/`         | `DashboardLayout.tsx`, `dashboard-plan.ts` (pure fitting), `region-heights.ts` (measured rows), `plan-for-state.ts` (state into plan input), `Footer.tsx`                                                                                                |
+| `scripts/`                | `generate-heading.ts` (figlet, writes `features/heading/heading-art.ts`, generated, committed)                                                                                                                                                           |
+| `test/`                   | mirrors `source/`; `helpers/` (`fake-adapter`, `fake-clock`, `render-themed`, `render-sized`, `app-harness`), `fixtures/` (`pmset`, `sysfs`)                                                                                                             |
+
+### Small-terminal breakpoints
+
+Gates are in `source/ui/hooks/use-layout.ts`; they are upper bounds. `layouts/dashboard-plan.ts` then fits the real content and degrades in this order, stopping at the first fit: heading art to a one-line title; drop low-priority stat lines; Session and Stats side by side; hide the cup (retry the previous steps); Session to one line, stats lines dropped then hidden. The options slot is always kept whole.
+
+| Gate                        | Value                                                 |
+| --------------------------- | ----------------------------------------------------- |
+| Heading art considered      | at least 64 columns and 35 rows                       |
+| Cup considered              | at least 50 columns and 16 rows (steam 7 + cup 7 + 2) |
+| Cup left of panels (`full`) | at least 90 columns and the cup shown; below: stacked |
+| Minimal (status line only)  | fewer than 40 columns or fewer than 12 rows           |
+| Panel width                 | capped at 76; dashboard centred in wider terminals    |
 
 ### Session model
 
 - States: `starting`, `awake`, `degraded` (system held, display unavailable), `paused`, `stopped{reason}`, `unsupported`.
 - Stop reasons: `user`, `duration`, `until`, `pid-exited`, `on-battery`, `battery-low`, `lock-failed`, `signal`.
 - `machine.ts` is a pure reducer; `conditions.ts` is `evaluate(options, snapshot) -> StopReason | null`.
-- `supervisor.ts` is NOT React: `getState()` / `subscribe()`, clock and scheduler injected. One 1 s tick; battery re-read every 15 s. React reads it via `use-session`.
+- `supervisor.ts` is NOT React: `getState()` / `subscribe()`, clock and scheduler injected; it composes the store, lock coordinator and monitor. One 1 s tick; battery re-read every 15 s. React reads it via `use-session`.
 - One lock handle per kind (`system`, `display`) so each is reported honestly.
 - Live edits to timing / battery / PID only swap predicates; the display toggle acquires/releases the display lock (new before old).
 - A dying lock child is retried (0.5 s, 2 s, 5 s). Display still failing → `degraded`; system still failing → `stopped(lock-failed)` with stderr shown.
@@ -72,7 +89,8 @@ The layout (planned; created by the work packages):
 - Path: `$XDG_CONFIG_HOME/coffee-cli/config.json` (fallback `~/.config/…`); macOS `~/Library/Application Support/coffee-cli/config.json`; overridden by `COFFEE_CLI_CONFIG` or `--config`.
 - Schema v1: `{version, theme, session: {end, display, acOnly, minBattery}, ui: {animation}}`. The PID is never saved.
 - Bad field → its default; unparseable JSON → renamed `config.corrupt-<timestamp>.json`; newer `version` → loaded read-only. Saved atomically 500 ms after an in-app change.
-- Invalid or conflicting flags exit with code 2.
+- Exit codes: 0 normal stop, 1 lock failure or unsupported platform, 2 bad flags / unknown flag / dead `--pid`, 128+N killed by signal N.
+- Keys live in `use-keymap.ts` (includes `T` = next theme). Plain-mode lines: `plain-mode.ts`.
 
 ## Hard rules
 
@@ -115,6 +133,8 @@ The layout (planned; created by the work packages):
 - **No `null` in types**: xo bans it and its autofixer breaks the build. "Absent" is `undefined` everywhere (`minBattery`, `pid`, `endsAt`, battery minutes, `readBattery()` result).
 - Doc comments: xo requires multi-line JSDoc with no leading `*` on inner lines (`/**` newline `Text.` newline `*/`), and comments start with a capital letter.
 - Ink's `<Text color>` rejects `undefined`: spread it conditionally (`{...(c === undefined ? {} : {color: c})}`). The `T` kit component does this once; use `T` instead of repeating it.
+- xo `@stylistic/no-mixed-operators`: do not mix `*` with `+`/`-` in one expression; name the intermediate product (`const area = w * h; return area + 1`).
+- xo `unicorn/prefer-ternary`: a simple if/else that only assigns or returns becomes a ternary.
 - Use `use(Context)` (React 19), not `useContext`; boolean names need an `is`/`has` style prefix.
 - Contracts are frozen in `source/core/session/types.ts`, `source/platform/types.ts`, `source/theme/tokens.ts`, `source/config/schema.ts` (types). Read the doc comments there before implementing against them.
 - File names: PascalCase for components (`Panel.tsx`), kebab-case for everything else (`spawn-lock.ts`).

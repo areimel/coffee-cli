@@ -116,6 +116,7 @@ One lock handle per kind (`system`, `display`), so the UI can report each honest
 - **Stats:** uptime, session elapsed, remaining / ends-at, battery % with bar, charging state, AC or battery, time to empty/full, load average, lock badges with the method in use.
 - **Keys:** `↑↓`/`j k` move, `←→` change, Enter edit, Esc cancel, Space pause/resume, `t` themes, `a` animation, `?` help, `q`/Ctrl+C quit.
 - **Small terminals** (`use-layout`): heading collapses to one line below 64×26; cup hidden below 50×18; panels stack below 90 columns; minimal status line below 40×10.
+  - _Revised after measurement:_ the figures above were estimates and are wrong. The built gates are heading art at 64 columns × 35 rows, cup at 50 × 16, side-by-side cup at 90 columns, minimal below 40 columns or 12 rows. `layouts/dashboard-plan.ts` then fits the measured region heights and degrades in order: title, fewer stat lines, Session beside Stats, no cup, one-line Session. See `CLAUDE.md` for the table.
 - **Themes:** tokens `accent, accentDim, text, muted, border, ok, warn, err, bg?`, each with hex / ansi256 / ansi16 variants picked by colour level; `NO_COLOR` falls back to bold/dim/inverse and glyphs.
   - Amber: accent `#FFB000`, text `#FFCC66`, muted `#8A6A2E`.
   - Green: accent `#33FF66`, text `#7DFF9A`, muted `#2E7D3A`.
