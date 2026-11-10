@@ -2,7 +2,7 @@ export type Credits = {
 	readonly name: string;
 	readonly github: string;
 	/**
-	Left empty until the author supplies a URL. An empty field is omitted from the display.
+	Personal site. An empty field is omitted from the display.
 	*/
 	readonly portfolio: string;
 };
@@ -10,7 +10,7 @@ export type Credits = {
 export const CREDITS: Credits = {
 	name: 'Alec Reimel',
 	github: 'github.com/areimel',
-	portfolio: '',
+	portfolio: 'bio.alecreimel.com',
 };
 
 /**

@@ -6,7 +6,11 @@ import {
 } from '../../../source/features/cup/credits.js';
 
 test('creditLines lists name, github and portfolio in order', t => {
-	t.deepEqual(creditLines(CREDITS), ['Alec Reimel', 'github.com/areimel']);
+	t.deepEqual(creditLines(CREDITS), [
+		'Alec Reimel',
+		'github.com/areimel',
+		'bio.alecreimel.com',
+	]);
 });
 
 test('creditLines drops empty fields', t => {
